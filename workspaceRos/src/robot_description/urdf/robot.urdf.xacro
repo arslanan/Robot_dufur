@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <robot name="monRobot" xmlns:xacro="http://ros.org/wiki/xacro">
   <xacro:include filename="$(find robot_description)/urdf/robot.wheels.xacro"/>
+  <xacro:include filename="$(find robot_description)/urdf/arm.xacro"/>
 
   <xacro:macro name="default_inertial" params="mass">
     <inertial>
@@ -9,7 +10,7 @@
     </inertial>
   </xacro:macro>
 
-  <link name="base_link"/> <!-- permet d'utiliser Move Base -->
+  <link name="base_link"/> <!-- permet d'utiliser Move Base   <xacro:property name="arm_position" value="0.17"/>-->
 
   <joint name="base_joint" type="fixed">
     <parent link="base_link"/>
@@ -53,6 +54,7 @@
     <parent link="chassis"/>
   </joint>
 
+  <!-- Wheels -->
   <link name="left_wheel">
     <collision>
       <origin xyz="0 0 0" rpy="0 1.5707 1.5707"/>
@@ -85,6 +87,8 @@
     <xacro:default_inertial mass="0.3"/>
   </link>
 
+
+  <!-- Wheel's Joints -->
   <joint type="continuous" name="left_wheel_hinge">
     <origin xyz="0.1 0.13 0.1" rpy="0 0 0"/>
     <child link="left_wheel"/>
@@ -99,8 +103,17 @@
     <axis xyz="0 1 0"/>
   </joint>
 
+  <!-- Arm Joint -->
+
+  <joint name="chassis_arm_joint" type="fixed">
+    <axis xyz="0 0 1"/>
+    <origin rpy="0 0 0" xyz="${arm_position} 0 0.2"/>
+    <parent link="chassis"/>
+    <child link="arm_1_link"/>
+  </joint>
 
 
+  <!-- Hokuyo Joint -->
 
   <joint name="hokuyo_joint" type="fixed">
     <axis xyz="0 1 0" />
@@ -108,6 +121,8 @@
     <parent link="chassis"/>
     <child link="hokuyo_link"/>
   </joint>
+
+
 
   <!-- Hokuyo Laser -->
   <link name="hokuyo_link">
