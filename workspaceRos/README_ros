@@ -1,0 +1,31 @@
+###INITIALISATION###
+ds workspaceRos : (1 seule fois)
+	echo "source ~/path_to_git/workspaceRos/devel/setup.bash" >> ~/.bashrc
+
+ds workspaceRos : (après chaque ajout de pkg, etc.)
+	catkin_make
+	source devel/setup.bash
+
+###COMPILATION###
+
+creer urdf par xacro: (ds workspaceRos)
+	rosrun xacro xacro --inorder src/robot_description/urdf/robot.urdf.xacro > src/robot_description/urdf/robot.urdf
+
+vérifcation de l'urdf : (ds /src/robot_description/urdf)
+	check_urdf robot.urdf
+
+lancement gazebo : (ds workspaceRos)
+	roslaunch robot_description gazebo_xacro.launch
+
+pour afficher robot sur rviz : (ds workspaceRos)
+	ds 1er terminal : roslaunch robot_description gazebo_xacro.launch
+	ds 2ème : rviz
+		"add" robot
+		"add" image pour voir une image
+			topic camera(???)
+		"add" laser.. pour lidar
+			topic = scan
+
+controller robot : rostopic pub /cmd_vel + tab x fois
+			mettre des valeurs
+		OU rqt et bouger axes (anticlock avant, clock , arriere)
