@@ -1,2 +1,3 @@
-workspaceRos/build
-workspaceRos/devel
+# Suppression de fichier utiles à al compilation propres à chaque ordinateurs
+workspaceRos/build/
+workspaceRos/devel/
