@@ -34,6 +34,7 @@
     <maxVel>1.0</maxVel>
     <material>Gazebo/FlatBlack</material>
   </gazebo>
+  <!-- Robot -->
   <link name="base_link"/>
   <!-- permet d'utiliser Move Base -->
   <joint name="base_joint" type="fixed">
@@ -41,6 +42,7 @@
     <child link="chassis"/>
     <origin rpy="0 0 0" xyz="0 0 0.01"/>
   </joint>
+  <!-- Chassis-->
   <link name="chassis">
     <collision>
       <origin rpy="0 0 0" xyz="0 0 .1"/>
@@ -59,6 +61,7 @@
       <inertia ixx="0.01" ixy="0.0" ixz="0.0" iyy="0.01" iyz="0.0" izz="0.01"/>
     </inertial>
   </link>
+  <!-- Roue Libre-->
   <link name="caster">
     <collision>
       <geometry>
@@ -75,11 +78,13 @@
       <inertia ixx="0.01" ixy="0.0" ixz="0.0" iyy="0.01" iyz="0.0" izz="0.01"/>
     </inertial>
   </link>
+  <!-- Joint Chassis-Roue Libre-->
   <joint name="caster_to_chassis" type="fixed">
     <origin rpy="0 0 0" xyz="-0.15 0 0.05"/>
     <child link="caster"/>
     <parent link="chassis"/>
   </joint>
+  <!-- Roue Gauche-->
   <link name="left_wheel">
     <collision>
       <origin rpy="0 1.5707 1.5707" xyz="0 0 0"/>
@@ -98,6 +103,7 @@
       <inertia ixx="0.01" ixy="0.0" ixz="0.0" iyy="0.01" iyz="0.0" izz="0.01"/>
     </inertial>
   </link>
+  <!-- Roue Droite-->
   <link name="right_wheel">
     <collision>
       <origin rpy="0 1.5707 1.5707" xyz="0 0 0"/>
@@ -116,18 +122,21 @@
       <inertia ixx="0.01" ixy="0.0" ixz="0.0" iyy="0.01" iyz="0.0" izz="0.01"/>
     </inertial>
   </link>
+  <!-- Joint Chassis-Roue Gauche-->
   <joint name="left_wheel_hinge" type="continuous">
     <origin rpy="0 0 0" xyz="0.1 0.13 0.1"/>
     <child link="left_wheel"/>
     <parent link="chassis"/>
     <axis xyz="0 1 0"/>
   </joint>
+  <!-- Joint Chassis-Roue Gauche-->
   <joint name="right_wheel_hinge" type="continuous">
     <origin rpy="0 0 0" xyz="0.1 -0.13 0.1"/>
     <child link="right_wheel"/>
     <parent link="chassis"/>
     <axis xyz="0 1 0"/>
   </joint>
+  <!-- Joint Chassis-Laser-->
   <joint name="hokuyo_joint" type="fixed">
     <axis xyz="0 1 0"/>
     <origin rpy="0 0 0" xyz="0 0 0.2"/>
@@ -139,13 +148,13 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <box size="0.1 0.1 0.1"/>
+        <cylinder length="0.2" radius="0.05"/>
       </geometry>
     </collision>
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <sphere radius="0.1"/>
+        <cylinder length="0.2" radius="0.05"/>
       </geometry>
     </visual>
     <inertial>
@@ -154,16 +163,16 @@
       <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6"/>
     </inertial>
   </link>
-  <!-- hokuyo -->
+  <!-- Plugin Hokuyo -->
   <gazebo reference="hokuyo_link">
     <sensor name="head_hokuyo_sensor" type="ray">
-      <pose>0 0 0 0 0 0</pose>
+      <pose>0 0 0.5 0 0 0</pose>
       <visualize>true</visualize>
       <update_rate>2</update_rate>
       <ray>
         <scan>
           <horizontal>
-            <samples>720</samples>
+            <samples>50</samples>
             <resolution>1</resolution>
             <min_angle>-3.1415</min_angle>
             <max_angle>3.1415</max_angle>
@@ -190,9 +199,9 @@
       </plugin>
     </sensor>
   </gazebo>
-  <!-- -->
+  <!-- joint Chassis-Camera -->
   <joint name="camera_joint" type="fixed">
-    <origin rpy="0 0 0" xyz="0.1 0 0.2"/>
+    <origin rpy="0 0.3 0" xyz="0.22 0 0.1"/>
     <parent link="chassis"/>
     <child link="camera_link"/>
   </joint>
@@ -201,13 +210,13 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <box size="0.1 0.1 0.1"/>
+        <box size="0.04 0.04 0.04"/>
       </geometry>
     </collision>
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <box size="0.1 0.1 0.1"/>
+        <box size="0.04 0.04 0.04"/>
       </geometry>
       <material name="red"/>
     </visual>
@@ -218,7 +227,7 @@
     </inertial>
   </link>
   <!-- Size of square 'camera' box -->
-  <!-- camera -->
+  <!-- Plugin Camera -->
   <gazebo reference="camera_link">
     <sensor name="camera1" type="camera">
       <update_rate>30.0</update_rate>
@@ -257,6 +266,46 @@
         <distortionT2>0.0</distortionT2>
       </plugin>
     </sensor>
+  </gazebo>
+  <!-- Joint Chassis-GPS-->
+  <joint name="gps_joint" type="fixed">
+    <axis xyz="0 0 0"/>
+    <origin rpy="0 0 0" xyz="-0.15 0 0.17"/>
+    <parent link="chassis"/>
+    <child link="gps_link"/>
+  </joint>
+  <!-- GPS -->
+  <link name="gps_link">
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder length="0.03" radius="0.03"/>
+      </geometry>
+    </collision>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder length="0.03" radius="0.03"/>
+      </geometry>
+    </visual>
+    <inertial>
+      <mass value="1e-5"/>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6"/>
+    </inertial>
+  </link>
+  <!-- Plugin GPS -->
+  <gazebo>
+    <plugin filename="libhector_gazebo_ros_gps.so" name="novatel_gps_sim">
+      <alwaysOn>1</alwaysOn>
+      <updateRate>19.9</updateRate>
+      <bodyName>base_link</bodyName>
+      <veloctyTopicName>fix_velocity</veloctyTopicName>
+      <drift>5.0 5.0 5.0</drift>
+      <gaussianNoise>0.1 0.1 0.1</gaussianNoise>
+      <velocityDrift>0 0 0</velocityDrift>
+      <velocityGaussianNoise>0.1 0.1 0.1</velocityGaussianNoise>
+    </plugin>
   </gazebo>
   <!-- Controllers -->
   <gazebo>
