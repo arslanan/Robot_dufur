@@ -1,0 +1,167 @@
+<?xml version="1.0"?>
+<robot name="mon_futur_robot" xmlns:xacro="http://ros.org/wiki/xacro">
+  <xacro:include filename="$(find robot_description)/urdf/robot.wheels.xacro"/>
+
+
+  <!-- Constants for robot dimensions -->
+  <xacro:property name="PI" value="3.1415926535897931"/>
+  <xacro:property name="mass_first_part" value="1" /> <!-- arbitrary value for mass -->
+  <xacro:property name="length_1" value="0.1" /> <!-- first arm -->
+  <xacro:property name="length_2" value="0.15" /> <!-- second arm -->
+  <xacro:property name="length_3" value="0.25" /> <!-- third arm -->
+  <xacro:property name="length_4" value="0.1" /> <!-- laser arm -->
+
+  <xacro:property name="arm_position" value="0.17" /> <!-- first arm -->
+  <xacro:property name="radius" value="0.02" /> <!-- Link 3 -->
+  <xacro:property name="camera_link" value="0.05" /> <!-- Size of square 'camera' box -->
+  <xacro:property name="axel_offset" value="0.05" /> <!-- Space btw top of beam and the each joint -->
+  
+
+  <xacro:macro name="default_inertial" params="mass">
+    <inertial>
+      <mass value="${mass}" />
+      <inertia ixx="0.01" ixy="0.0" ixz="0.0" iyy="0.01" iyz="0.0" izz="0.01" />
+    </inertial>
+  </xacro:macro>
+
+  
+  
+<!-- Mobile arm -->
+
+<!-- First part -->
+  <link name="arm_1_link">
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder length="${length_1}" radius="${radius}"/>
+      </geometry>
+    </collision>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder length="${length_1}" radius="${radius}"/>
+      </geometry>
+    </visual>
+    <inertial>
+      <mass value="1e-5"/>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6"/>
+    </inertial>
+  </link>
+
+  <!--xacro:property name="arm_1_link" value="0.05" /--> <!-- Size of square 'camera' box -->
+
+
+
+   
+ 
+  <joint name="joint_12" type="continuous">
+    <parent link="arm_1_link"/>
+    <child link="arm_2_link"/>
+    <origin xyz="0 0 ${length_1/2}" rpy="0 1.5707 0"/>
+    <axis xyz="1 0 0"/>
+    <!--dynamics damping="0.7"/-->
+  </joint> 
+
+ <!--second Link -->
+  <link name="arm_2_link">
+    <collision>
+      <origin xyz="0 0 ${length_2 / 2}" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="${length_2}" radius="${radius}"/>
+      </geometry>
+    </collision>
+
+    <visual>
+      <origin xyz="0 0 ${length_2 / 2}" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="${length_2}" radius="${radius}"/>
+      </geometry>
+      <!--<material name="black"/>-->
+
+    </visual>
+
+    <inertial>
+      <mass value="1e-5"/>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6"/>
+    </inertial>
+  
+  </link>
+  <joint name="joint_23" type="prismatic">
+    <parent link="arm_2_link"/>
+    <child link="arm_3_link"/>
+    <origin xyz="0 0 ${length_2}" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="1000.0" lower="-0.2" upper="0.0" velocity="0.5"/>
+
+  </joint>
+
+
+
+
+   <!--Third Link Verin entre 2 et 3-->
+
+  <link name="arm_3_link">
+    <collision>
+      <origin xyz="0 0 ${length_3 / 2}" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="${length_3}" radius="${radius}"/>
+      </geometry>
+    </collision>
+
+    <visual>
+      <origin xyz="0 0 ${length_3 / 2}" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="${length_3}" radius="${radius}"/>
+      </geometry>
+    </visual>
+
+    <inertial>
+      <mass value="1e-5"/>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6"/>
+    </inertial>
+</link>
+
+  <gazebo reference="arm_3_link">
+    <visual>
+      <material>
+        <ambient>0.25 0.25 0.80 1</ambient>
+        <diffuse>0.25 0.25 0.80 1</diffuse>
+      </material>
+    </visual>  
+  </gazebo>
+
+  <joint name="joint_34" type="fixed">
+    <origin xyz="0 0 ${length_3}" rpy="0 1.5707 0"/>
+    <child link="laser"/>
+    <parent link="arm_3_link"/>
+  </joint>
+
+   <!--4th Link LASER-->
+
+  <link name="laser">
+    <collision>
+      <origin xyz="0 0 ${length_4 / 2}" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="${length_4}" radius="${radius}"/>
+      </geometry>
+    </collision>
+
+    <visual>
+      <origin xyz="0 0 ${length_4 / 2}" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="${length_4}" radius="${radius}"/>
+      </geometry>
+    </visual>
+
+    <inertial>
+      <mass value="1e-5"/>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6"/>
+    </inertial>
+</link>
+
+
+</robot>
