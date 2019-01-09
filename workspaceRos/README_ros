@@ -26,6 +26,13 @@ pour afficher robot sur rviz : (ds workspaceRos)
 		"add" laser.. pour lidar
 			topic = scan
 
-controller robot : rostopic pub /cmd_vel + tab x fois
+pour afficher les noudes sur rqt : (ds workspaceRos)
+	ds 1er terminal : roslaunch robot_description gazebo_xacro.launch
+	ds 2ème : rqt
+		Plugins -> Introspection -> 4ème dans la liste
+
+pour controller robot : (ds  workspaceRos
+	ds 1er terminal : roslaunch robot_description gazebo_xacro.launch
+	ds 2ème : rostopic pub /cmd_vel + tab x fois
 			mettre des valeurs
 		OU rqt et bouger axes (anticlock avant, clock , arriere)
