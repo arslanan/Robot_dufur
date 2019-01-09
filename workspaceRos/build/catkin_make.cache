@@ -1,2 +1,0 @@
-
--DCATKIN_DEVEL_PREFIX=/home/shraay/Documents/Robot_dufur/workspaceRos/devel -DCMAKE_INSTALL_PREFIX=/home/shraay/Documents/Robot_dufur/workspaceRos/install -G Unix Makefiles
