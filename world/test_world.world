@@ -1,0 +1,332 @@
+<?xml version="1.0"?>
+    <sdf version="1.4">
+      <world name="default">
+
+<model name="wall0">
+      <pose>-5 0 0.25 0 0 1.57079</pose>
+      <static>true</static>
+      <link name="body">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>10 0.1 0.5</size>
+            </box>
+          </geometry>
+          <material>
+        <ambient>100 100 100 1</ambient>
+        <diffuse>100 100 100 1</diffuse>
+      </material>
+        </visual>
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>10 0.1 0.5</size>
+            </box>
+          </geometry>
+        </collision>
+      </link>
+    </model>
+
+<model name="wall1">
+      <pose>5 0 0.25 0 0 1.57079</pose>
+      <static>true</static>
+      <link name="body">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>10 0.1 0.5</size>
+            </box>
+          </geometry>
+          <material>
+        <ambient>100 100 100 1</ambient>
+        <diffuse>100 100 100 1</diffuse>
+      </material>
+        </visual>
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>10 0.1 0.5</size>
+            </box>
+          </geometry>
+        </collision>
+      </link>
+    </model>
+
+<model name="wall2">
+      <pose>0 -5 0.25 0 0 0</pose>
+      <static>true</static>
+      <link name="body">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>10 0.1 0.5</size>
+            </box>
+          </geometry>
+          <material>
+        <ambient>100 100 100 1</ambient>
+        <diffuse>100 100 100 1</diffuse>
+      </material>
+        </visual>
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>10 0.1 0.5</size>
+            </box>
+          </geometry>
+        </collision>
+      </link>
+    </model>
+
+<model name="wall3">
+      <pose>0 5 0.25 0 0 0</pose>
+      <static>true</static>
+      <link name="body">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>10 0.1 0.5</size>
+            </box>
+          </geometry>
+          <material>
+        <ambient>100 100 100 1</ambient>
+        <diffuse>100 100 100 1</diffuse>
+      </material>
+        </visual>
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>10 0.1 0.5</size>
+            </box>
+          </geometry>
+        </collision>
+      </link>
+    </model>
+
+<model name="floor">
+      <pose>0 0 -0.01 0 0 0</pose>
+      <static>true</static>
+      <link name="body">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>10 10 0.02</size>
+            </box>
+          </geometry>
+          <material>
+        <ambient>240 240 240 1</ambient>
+        <diffuse>240 240 240 1</diffuse>
+      </material>
+        </visual>
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>10 10 0.02</size>
+            </box>
+          </geometry>
+          <surface>
+                <friction>
+                  <ode>
+                    <mu>0.1</mu>
+                    <mu2>0.1</mu2>
+                    <fdir1>0 0 1</fdir1>
+                  </ode>
+                </friction>
+              </surface>
+        </collision>
+      </link>
+    </model>
+
+<model name="plant0">
+  <pose>-1.25459881153 4.5071430641 0.05 0 0 0</pose>
+  <static>true</static>
+  <link name="body">
+    <visual name="visual">
+      <geometry>
+        <cylinder>
+          <radius>0.0995408763139</radius>
+          <length>0.1</length>
+        </cylinder>
+      </geometry>
+      <material>
+    <ambient>0 1 0 1</ambient>
+    <diffuse>0 1 0 1</diffuse>
+  </material>
+    </visual>
+  </link>
+</model>
+
+<model name="plant1">
+  <pose>2.31993941811 0.98658484197 0.05 0 0 0</pose>
+  <static>true</static>
+  <link name="body">
+    <visual name="visual">
+      <geometry>
+        <cylinder>
+          <radius>0.0381342018848</radius>
+          <length>0.1</length>
+        </cylinder>
+      </geometry>
+      <material>
+    <ambient>0 1 0 1</ambient>
+    <diffuse>0 1 0 1</diffuse>
+  </material>
+    </visual>
+  </link>
+</model>
+
+<model name="plant2">
+  <pose>-3.43981359558 -3.44005479664 0.05 0 0 0</pose>
+  <static>true</static>
+  <link name="body">
+    <visual name="visual">
+      <geometry>
+        <cylinder>
+          <radius>0.0579788043096</radius>
+          <length>0.1</length>
+        </cylinder>
+      </geometry>
+      <material>
+    <ambient>0 1 0 1</ambient>
+    <diffuse>0 1 0 1</diffuse>
+  </material>
+    </visual>
+  </link>
+</model>
+
+<model name="plant3">
+  <pose>-4.41916387832 3.66176145775 0.05 0 0 0</pose>
+  <static>true</static>
+  <link name="body">
+    <visual name="visual">
+      <geometry>
+        <cylinder>
+          <radius>0.0676270396282</radius>
+          <length>0.1</length>
+        </cylinder>
+      </geometry>
+      <material>
+    <ambient>0 1 0 1</ambient>
+    <diffuse>0 1 0 1</diffuse>
+  </material>
+    </visual>
+  </link>
+</model>
+
+<model name="plant4">
+  <pose>1.01115011743 2.08072577796 0.05 0 0 0</pose>
+  <static>true</static>
+  <link name="body">
+    <visual name="visual">
+      <geometry>
+        <cylinder>
+          <radius>0.0792890979482</radius>
+          <length>0.1</length>
+        </cylinder>
+      </geometry>
+      <material>
+    <ambient>0 1 0 1</ambient>
+    <diffuse>0 1 0 1</diffuse>
+  </material>
+    </visual>
+  </link>
+</model>
+
+<model name="plant5">
+  <pose>-4.79415505704 4.69909852162 0.05 0 0 0</pose>
+  <static>true</static>
+  <link name="body">
+    <visual name="visual">
+      <geometry>
+        <cylinder>
+          <radius>0.122072874981</radius>
+          <length>0.1</length>
+        </cylinder>
+      </geometry>
+      <material>
+    <ambient>0 1 0 1</ambient>
+    <diffuse>0 1 0 1</diffuse>
+  </material>
+    </visual>
+  </link>
+</model>
+
+<model name="plant6">
+  <pose>3.324426408 -2.87660889322 0.05 0 0 0</pose>
+  <static>true</static>
+  <link name="body">
+    <visual name="visual">
+      <geometry>
+        <cylinder>
+          <radius>0.0459575916806</radius>
+          <length>0.1</length>
+        </cylinder>
+      </geometry>
+      <material>
+    <ambient>0 1 0 1</ambient>
+    <diffuse>0 1 0 1</diffuse>
+  </material>
+    </visual>
+  </link>
+</model>
+
+<model name="plant7">
+  <pose>-3.18175032793 -3.16595490147 0.05 0 0 0</pose>
+  <static>true</static>
+  <link name="body">
+    <visual name="visual">
+      <geometry>
+        <cylinder>
+          <radius>0.0868504769938</radius>
+          <length>0.1</length>
+        </cylinder>
+      </geometry>
+      <material>
+    <ambient>0 1 0 1</ambient>
+    <diffuse>0 1 0 1</diffuse>
+  </material>
+    </visual>
+  </link>
+</model>
+
+<model name="plant8">
+  <pose>-1.9575775704 0.247564316322 0.05 0 0 0</pose>
+  <static>true</static>
+  <link name="body">
+    <visual name="visual">
+      <geometry>
+        <cylinder>
+          <radius>0.0970138939521</radius>
+          <length>0.1</length>
+        </cylinder>
+      </geometry>
+      <material>
+    <ambient>0 1 0 1</ambient>
+    <diffuse>0 1 0 1</diffuse>
+  </material>
+    </visual>
+  </link>
+</model>
+
+<model name="plant9">
+  <pose>-0.680549813579 -2.08770859802 0.05 0 0 0</pose>
+  <static>true</static>
+  <link name="body">
+    <visual name="visual">
+      <geometry>
+        <cylinder>
+          <radius>0.0260385536536</radius>
+          <length>0.1</length>
+        </cylinder>
+      </geometry>
+      <material>
+    <ambient>0 1 0 1</ambient>
+    <diffuse>0 1 0 1</diffuse>
+  </material>
+    </visual>
+  </link>
+</model>
+
+
+
+  </world>
+    </sdf>
