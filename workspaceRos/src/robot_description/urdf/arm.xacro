@@ -5,7 +5,7 @@
 
   <!-- Constants for robot dimensions -->
   <xacro:property name="PI" value="3.1415926535897931"/>
-  <xacro:property name="mass_first_part" value="1" /> <!-- arbitrary value for mass -->
+  <xacro:property name="mass_first_part" value="0.01" /> <!-- arbitrary value for mass -->
   <xacro:property name="length_1" value="0.1" /> <!-- first arm -->
   <xacro:property name="length_2" value="0.15" /> <!-- second arm -->
   <xacro:property name="length_3" value="0.25" /> <!-- third arm -->
@@ -43,9 +43,9 @@
       </geometry>
     </visual>
     <inertial>
-      <mass value="1e-5"/>
+      <mass value="0.01"/>
       <origin rpy="0 0 0" xyz="0 0 0"/>
-      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6"/>
+      <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
     </inertial>
   </link>
 
@@ -65,13 +65,6 @@
 
  <!--second Link -->
   <link name="arm_2_link">
-    <collision>
-      <origin xyz="0 0 ${length_2 / 2}" rpy="0 0 0"/>
-      <geometry>
-        <cylinder length="${length_2}" radius="${radius}"/>
-      </geometry>
-    </collision>
-
     <visual>
       <origin xyz="0 0 ${length_2 / 2}" rpy="0 0 0"/>
       <geometry>
@@ -82,18 +75,19 @@
     </visual>
 
     <inertial>
-      <mass value="1e-5"/>
+      <mass value="0.01"/>
       <origin rpy="0 0 0" xyz="0 0 0"/>
-      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6"/>
+      <inertia ixx="0.001" ixy="0.001" ixz="0.001" iyy="0.001" iyz="0.001" izz="0.001"/>
     </inertial>
-  
   </link>
+
+
   <joint name="joint_23" type="prismatic">
     <parent link="arm_2_link"/>
     <child link="arm_3_link"/>
     <origin xyz="0 0 ${length_2}" rpy="0 0 0"/>
     <axis xyz="0 0 1"/>
-    <limit effort="1000.0" lower="-0.2" upper="0.0" velocity="0.5"/>
+    <limit effort="10.0" lower="-0.2" upper="0.0" velocity="0.5"/>
 
   </joint>
 
@@ -103,13 +97,6 @@
    <!--Third Link Verin entre 2 et 3-->
 
   <link name="arm_3_link">
-    <collision>
-      <origin xyz="0 0 ${length_3 / 2}" rpy="0 0 0"/>
-      <geometry>
-        <cylinder length="${length_3}" radius="${radius}"/>
-      </geometry>
-    </collision>
-
     <visual>
       <origin xyz="0 0 ${length_3 / 2}" rpy="0 0 0"/>
       <geometry>
@@ -118,13 +105,14 @@
     </visual>
 
     <inertial>
-      <mass value="1e-5"/>
+      <mass value="0.01"/>
       <origin rpy="0 0 0" xyz="0 0 0"/>
-      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6"/>
+      <inertia ixx="0.001" ixy="0.001" ixz="0.001" iyy="0.001" iyz="0.001" izz="0.001"/>
     </inertial>
 </link>
 
   <gazebo reference="arm_3_link">
+    <!--<selfCollide>false</selfCollide> -->
     <visual>
       <material>
         <ambient>0.25 0.25 0.80 1</ambient>
@@ -133,13 +121,13 @@
     </visual>  
   </gazebo>
 
-  <joint name="joint_34" type="fixed">
+<joint name="joint_34" type="fixed">
     <origin xyz="0 0 ${length_3}" rpy="0 1.5707 0"/>
     <child link="laser"/>
     <parent link="arm_3_link"/>
-  </joint>
+  </joint> 
 
-   <!--4th Link LASER-->
+    <!-- 4th Link LASER-->
 
   <link name="laser">
     <collision>
@@ -157,11 +145,40 @@
     </visual>
 
     <inertial>
-      <mass value="1e-5"/>
+      <mass value="0.01"/>
       <origin rpy="0 0 0" xyz="0 0 0"/>
-      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6"/>
+      <inertia ixx="0.001" ixy="0.001" ixz="0.001" iyy="0.001" iyz="0.001" izz="0.001"/>
     </inertial>
-</link>
+  </link>
 
+  <!-- Controllers -->
+
+  <gazebo>
+    <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+      <robotNamespace>/rrbot</robotNamespace>
+    </plugin>
+  </gazebo>
+
+  <transmission name="tran1">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="joint_12">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="motor1">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+  <transmission name="tran2">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="joint_23">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="motor2">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+</transmission>
 
 </robot>
