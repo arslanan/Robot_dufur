@@ -71,6 +71,8 @@
         <cylinder length="${length_2}" radius="${radius}"/>
       </geometry>
     </collision>
+    
+
 
     <visual>
       <origin xyz="0 0 ${length_2 / 2}" rpy="0 0 0"/>
@@ -86,14 +88,15 @@
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6"/>
     </inertial>
-  
   </link>
+
+
   <joint name="joint_23" type="prismatic">
     <parent link="arm_2_link"/>
     <child link="arm_3_link"/>
     <origin xyz="0 0 ${length_2}" rpy="0 0 0"/>
     <axis xyz="0 0 1"/>
-    <limit effort="1000.0" lower="-0.2" upper="0.0" velocity="0.5"/>
+    <limit effort="1000.0" lower="-0.2" upper="1.0" velocity="0.5"/>
 
   </joint>
 
@@ -103,12 +106,15 @@
    <!--Third Link Verin entre 2 et 3-->
 
   <link name="arm_3_link">
+
     <collision>
       <origin xyz="0 0 ${length_3 / 2}" rpy="0 0 0"/>
       <geometry>
         <cylinder length="${length_3}" radius="${radius}"/>
       </geometry>
     </collision>
+
+
 
     <visual>
       <origin xyz="0 0 ${length_3 / 2}" rpy="0 0 0"/>
@@ -125,6 +131,7 @@
 </link>
 
   <gazebo reference="arm_3_link">
+    <!--<selfCollide>false</selfCollide> -->
     <visual>
       <material>
         <ambient>0.25 0.25 0.80 1</ambient>
@@ -137,7 +144,7 @@
     <origin xyz="0 0 ${length_3}" rpy="0 1.5707 0"/>
     <child link="laser"/>
     <parent link="arm_3_link"/>
-  </joint>
+  </joint> 
 
     <!-- 4th Link LASER-->
 
@@ -165,11 +172,11 @@
 
   <!-- Controllers -->
 
-<gazebo>
-  <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
-    <robotNamespace>/rrbot</robotNamespace>
-  </plugin>
-</gazebo>
+  <gazebo>
+    <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+      <robotNamespace>/rrbot</robotNamespace>
+    </plugin>
+  </gazebo>
 
   <transmission name="tran1">
     <type>transmission_interface/SimpleTransmission</type>
