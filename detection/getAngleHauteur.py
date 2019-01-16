@@ -6,6 +6,9 @@ import random
 import math
 import cv2
 
+""" Fonction renvoyant l'angle et la différence de hauteur entre le centre de
+la caméra et docn du robot et le centre de la mauvaise herbe """"
+
 debug=False
 
 def getAngle(cameraImage,cx,cy):
