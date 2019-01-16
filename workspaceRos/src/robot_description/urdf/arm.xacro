@@ -133,13 +133,13 @@
     </visual>  
   </gazebo>
 
-  <joint name="joint_34" type="fixed">
+<joint name="joint_34" type="fixed">
     <origin xyz="0 0 ${length_3}" rpy="0 1.5707 0"/>
     <child link="laser"/>
     <parent link="arm_3_link"/>
   </joint>
 
-   <!--4th Link LASER-->
+    <!-- 4th Link LASER-->
 
   <link name="laser">
     <collision>
@@ -161,7 +161,36 @@
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6"/>
     </inertial>
-</link>
+  </link>
 
+  <!-- Controllers -->
+
+<gazebo>
+  <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+    <robotNamespace>/rrbot</robotNamespace>
+  </plugin>
+</gazebo>
+
+  <transmission name="tran1">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="joint_12">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="motor1">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+  <transmission name="tran2">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="joint_23">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="motor2">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+</transmission>
 
 </robot>

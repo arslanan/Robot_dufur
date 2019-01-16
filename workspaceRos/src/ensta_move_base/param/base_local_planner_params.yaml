@@ -31,7 +31,7 @@ TrajectoryPlannerROS:
 
   dwa: false
 
-  global_frame_id: /map
+  global_frame_id: map
 
 
 
