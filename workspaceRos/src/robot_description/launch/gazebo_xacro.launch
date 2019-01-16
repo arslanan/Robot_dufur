@@ -2,6 +2,8 @@
 
 <launch>
 
+	<arg name="gui" value="true"/>
+
 	<!--include package move-base-->
 	<include file="$(find ensta_move_base)/launch/move_base.launch"/>
 	<!-- SLAM -->
@@ -12,7 +14,7 @@
 	  <include file="$(find gazebo_ros)/launch/empty_world.launch">
 	    <arg name="world_name"  value="$(find worlds)/test_world.world"/>
 	    <!--<arg name="paused"      value="$(arg paused)"/>-->
-	    <!--<arg name="gui"         value="$(arg gui)"/>-->
+	    <arg name="gui"         value="$(arg gui)"/>
 	  </include>
 
  	<!--For Xacro file-->
