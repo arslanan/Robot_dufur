@@ -154,7 +154,9 @@
 
 
 
+
    <!-- Joint Chassis-Hokuyo-->
+
    <joint name="hokuyo_joint" type="fixed">
       <axis xyz="0 1 0" />
       <origin xyz="0 0 0.22" rpy="0 0 0"/>

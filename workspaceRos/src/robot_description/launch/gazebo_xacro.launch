@@ -1,16 +1,22 @@
 <?xml version="1.0"?>
 
 <launch>
+
 	<!--include package move-base-->
 	<include file="$(find ensta_move_base)/launch/move_base.launch"/>
+	<!-- SLAM -->
+	    <include file="$(find gmapping)/launch/slam_gmapping_pr2.launch">
+	    </include>
 
-	<!--launch.world.file-->
-	<include file="$(find gazebo_ros)/launch/empty_world.launch">
-		<!-- ou empty_world-->
-	</include>
+	  <!-- Initialization world -->
+	  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+	    <arg name="world_name"  value="$(find worlds)/test_world.world"/>
+	    <!--<arg name="paused"      value="$(arg paused)"/>-->
+	    <!--<arg name="gui"         value="$(arg gui)"/>-->
+	  </include>
 
  	<!--For Xacro file-->
-    	 <param name="robot_description" command="$(find xacro)/xacro --inorder $(find robot_description)/urdf/robot.urdf.xacro"/>   
+    	 <param name="robot_description" command="$(find xacro)/xacro --inorder $(find robot_description)/urdf/robot.urdf.xacro"/>
 
 	<!--Spawn a robot into Gazebo-->
 	<node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" args="-urdf -model robot -param robot_description"/>
