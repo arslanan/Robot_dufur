@@ -35,7 +35,7 @@
             <box size="0.4 0.2 0.1"/>
          </geometry>
       </visual>
-     <xacro:default_inertial mass="2.0"/>
+     <xacro:default_inertial mass="10.0"/>
    </link>
 
 
