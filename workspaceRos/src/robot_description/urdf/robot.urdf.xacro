@@ -19,43 +19,6 @@
       <origin xyz="0 0 0.01" rpy="0 0 0"/>
    </joint>
 
-<<<<<<< HEAD
-  <link name="chassis">
-    <collision>
-      <origin xyz="0 0 .1" rpy="0 0 0"/>
-      <geometry>
-        <box size="0.4 0.2 0.1"/>
-      </geometry>
-    </collision>
-    <visual>
-      <origin xyz="0 0 .1" rpy="0 0 0"/>
-      <geometry>
-        <box size="0.4 0.2 0.1"/>
-      </geometry>
-    </visual>
-    <xacro:default_inertial mass="2.0"/>
-  </link>
-
-  <link name="caster">
-    <collision>
-      <geometry>
-        <sphere radius="0.05"/>
-      </geometry>
-    </collision>
-    <visual>
-      <geometry>
-        <sphere radius="0.05"/>
-      </geometry>
-    </visual>
-    <xacro:default_inertial mass="0.01"/>
-  </link>
-
-  <joint name="caster_to_chassis" type="fixed">
-    <origin xyz="-0.15 0 0.05" rpy="0 0 0"/>
-    <child link="caster"/>
-    <parent link="chassis"/>
-  </joint>
-=======
    <!-- Chassis-->
    <link name="chassis">       
       <collision>
@@ -72,7 +35,6 @@
       </visual>
      <xacro:default_inertial mass="2.0"/>
    </link>
->>>>>>> 06c67a4350b1a4dbc1f57f1e9bc8ccef10583e76
 
    <!-- Roue Libre-->
    <link name="caster">
