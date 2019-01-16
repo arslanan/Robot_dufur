@@ -17,7 +17,7 @@
     <origin xyz="0 0 0.01" rpy="0 0 0"/>
   </joint>
 
-  <link name="chassis">       
+  <link name="chassis">
     <collision>
       <origin xyz="0 0 .1" rpy="0 0 0"/>
       <geometry>
@@ -141,7 +141,7 @@
       <ray>
         <scan>
           <horizontal>
-            <samples>720</samples>
+            <samples>30</samples>
             <resolution>1</resolution>
             <min_angle>-3.1415</min_angle>
             <max_angle>3.1415</max_angle>
