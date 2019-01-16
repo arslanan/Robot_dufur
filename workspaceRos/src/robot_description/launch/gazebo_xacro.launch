@@ -18,4 +18,7 @@
 	<!--transformees-->
 	<node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
 
+	<!--transformee gps data pour rviz COMMENTER -> GPS PUBLIE PAS>
+	<node name= "tf_gps" pkg= "robot_description" type= "tf_gps"/-->
+
 </launch>

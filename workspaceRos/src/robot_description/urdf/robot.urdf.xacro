@@ -10,7 +10,7 @@
     </inertial>
   </xacro:macro>
 
-<!-- Robot -->
+   <!-- Robot -->
    <link name="base_link"/> <!-- permet d'utiliser Move Base -->
 
    <joint name="base_joint" type="fixed">
@@ -18,6 +18,8 @@
       <child link="chassis" />
       <origin xyz="0 0 0.01" rpy="0 0 0"/>
    </joint>
+
+
 
    <!-- Chassis-->
    <link name="chassis">       
@@ -35,6 +37,8 @@
       </visual>
      <xacro:default_inertial mass="2.0"/>
    </link>
+
+
 
    <!-- Roue Libre-->
    <link name="caster">
@@ -57,6 +61,8 @@
       <child link="caster"/>
       <parent link="chassis"/>
    </joint>
+
+
 
    <!-- Roue Gauche-->
    <link name="left_wheel">
@@ -108,10 +114,36 @@
       <axis xyz="0 1 0"/>
    </joint>
 
+   <!-- Plugin Roues -->
+   <gazebo>
+      <plugin name="wheels_controller" filename="libgazebo_ros_diff_drive.so">
+         <commandTopic>cmd_vel</commandTopic>
+         <odometryTopic>rrbot/odom_wheel</odometryTopic>
+         <odometryFrame>odom</odometryFrame>
+         <odometrySource>world</odometrySource>
+         <publishOdomTF>true</publishOdomTF>
+         <!-- ENTER BASE LINK NAME -->
+         <robotBaseFrame>base_link</robotBaseFrame>
+         <publishWheelTF>false</publishWheelTF>
+         <publishTf>true</publishTf>
+         <publishWheelJointState>true</publishWheelJointState>
+         <legacyMode>false</legacyMode>
+         <updateRate>30</updateRate>
+         <!-- ENTER LEFT JOINT NAME -->
+         <leftJoint>left_wheel_hinge</leftJoint>
+         <!-- ENTER RIGHT JOINT NAME -->
+         <rightJoint>right_wheel_hinge</rightJoint>
+         <wheelSeparation>0.31</wheelSeparation>
+         <wheelDiameter>0.1</wheelDiameter>
+         <wheelAcceleration>0.1</wheelAcceleration>
+         <wheelTorque>10</wheelTorque>
+         <rosDebugLevel>na</rosDebugLevel>
+      </plugin>
+   </gazebo>
+
 
 
   <!-- Arm Joint -->
-
   <joint name="chassis_arm_joint" type="fixed">
     <axis xyz="0 0 1"/>
     <origin rpy="0 0 0" xyz="${arm_position} 0 0.2"/>
@@ -120,7 +152,9 @@
   </joint>
 
 
-   <!-- Joint Chassis-Lidar-->
+
+
+   <!-- Joint Chassis-Hokuyo-->
    <joint name="hokuyo_joint" type="fixed">
       <axis xyz="0 1 0" />
       <origin xyz="0 0 0.22" rpy="0 0 0"/>
@@ -295,9 +329,11 @@
    <!-- Plugin GPS -->
    <gazebo>
       <plugin name="novatel_gps_sim" filename="libhector_gazebo_ros_gps.so">
-         <alwaysOn>1</alwaysOn>
+         <alwaysOn>true</alwaysOn>
          <updateRate>19.9</updateRate>
          <bodyName>base_link</bodyName>
+         <robotNamespace>rrbot/gps</robotNamespace>
+         <topicName>fix</topicName>
          <veloctyTopicName>fix_velocity</veloctyTopicName>
          <drift>5.0 5.0 5.0</drift>
          <gaussianNoise>0.1 0.1 0.1</gaussianNoise>
@@ -310,32 +346,7 @@
 
 
 
-  <!-- Controllers -->
-   <gazebo>
-      <plugin name="wheels_controller" filename="libgazebo_ros_diff_drive.so">
-         <commandTopic>cmd_vel</commandTopic>
-         <odometryTopic>odom</odometryTopic>
-         <odometryFrame>odom</odometryFrame>
-         <odometrySource>world</odometrySource>
-         <publishOdomTF>true</publishOdomTF>
-         <!-- ENTER BASE LINK NAME -->
-         <robotBaseFrame>base_link</robotBaseFrame>
-         <publishWheelTF>false</publishWheelTF>
-         <publishTf>true</publishTf>
-         <publishWheelJointState>true</publishWheelJointState>
-         <legacyMode>false</legacyMode>
-         <updateRate>30</updateRate>
-         <!-- ENTER LEFT JOINT NAME -->
-         <leftJoint>left_wheel_hinge</leftJoint>
-         <!-- ENTER RIGHT JOINT NAME -->
-         <rightJoint>right_wheel_hinge</rightJoint>
-         <wheelSeparation>0.31</wheelSeparation>
-         <wheelDiameter>0.1</wheelDiameter>
-         <wheelAcceleration>0.1</wheelAcceleration>
-         <wheelTorque>10</wheelTorque>
-         <rosDebugLevel>na</rosDebugLevel>
-      </plugin>
-   </gazebo>
+  
 
 
 </robot>

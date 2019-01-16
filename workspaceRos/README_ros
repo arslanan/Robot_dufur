@@ -11,7 +11,7 @@ ds workspaceRos : (après chaque ajout de pkg, etc.)
 creer urdf par xacro: (ds workspaceRos)
 	rosrun xacro xacro --inorder src/robot_description/urdf/robot.urdf.xacro > src/robot_description/urdf/robot.urdf
 
-vérifcation de l'urdf : (ds /src/robot_description/urdf)
+vérification de l'urdf : (ds /src/robot_description/urdf)
 	check_urdf robot.urdf
 
 lancement gazebo : (ds workspaceRos)
