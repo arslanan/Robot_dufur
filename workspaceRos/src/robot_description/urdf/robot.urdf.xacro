@@ -19,43 +19,6 @@
       <origin xyz="0 0 0.01" rpy="0 0 0"/>
    </joint>
 
-<<<<<<< HEAD
-  <link name="chassis">
-    <collision>
-      <origin xyz="0 0 .1" rpy="0 0 0"/>
-      <geometry>
-        <box size="0.4 0.2 0.1"/>
-      </geometry>
-    </collision>
-    <visual>
-      <origin xyz="0 0 .1" rpy="0 0 0"/>
-      <geometry>
-        <box size="0.4 0.2 0.1"/>
-      </geometry>
-    </visual>
-    <xacro:default_inertial mass="2.0"/>
-  </link>
-
-  <link name="caster">
-    <collision>
-      <geometry>
-        <sphere radius="0.05"/>
-      </geometry>
-    </collision>
-    <visual>
-      <geometry>
-        <sphere radius="0.05"/>
-      </geometry>
-    </visual>
-    <xacro:default_inertial mass="0.01"/>
-  </link>
-
-  <joint name="caster_to_chassis" type="fixed">
-    <origin xyz="-0.15 0 0.05" rpy="0 0 0"/>
-    <child link="caster"/>
-    <parent link="chassis"/>
-  </joint>
-=======
    <!-- Chassis-->
    <link name="chassis">       
       <collision>
@@ -72,7 +35,6 @@
       </visual>
      <xacro:default_inertial mass="2.0"/>
    </link>
->>>>>>> 06c67a4350b1a4dbc1f57f1e9bc8ccef10583e76
 
    <!-- Roue Libre-->
    <link name="caster">
@@ -157,39 +119,6 @@
     <child link="arm_1_link"/>
   </joint>
 
-
-<<<<<<< HEAD
-    <inertial>
-      <mass value="1e-5" />
-      <origin xyz="0 0 0" rpy="0 0 0"/>
-      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
-    </inertial>
-  </link>
-
-  <!-- hokuyo -->
-  <gazebo reference="hokuyo_link">
-    <sensor type="ray" name="head_hokuyo_sensor">
-      <pose>0 0 0 0 0 0</pose>
-      <visualize>true</visualize>
-      <update_rate>2</update_rate>
-      <ray>
-        <scan>
-          <horizontal>
-            <samples>30</samples>
-            <resolution>1</resolution>
-            <min_angle>-3.1415</min_angle>
-            <max_angle>3.1415</max_angle>
-          </horizontal>
-        </scan>
-        <range>
-          <min>0.10</min>
-          <max>30.0</max>
-          <resolution>0.01</resolution>
-        </range>
-        <noise>
-          <type>gaussian</type>
-          <!-- Noise parameters based on published spec for Hokuyo laser
-=======
    <!-- Joint Chassis-Lidar-->
    <joint name="hokuyo_joint" type="fixed">
       <axis xyz="0 1 0" />
@@ -242,7 +171,6 @@
             <noise>
                <type>gaussian</type>
                <!-- Noise parameters based on published spec for Hokuyo laser
->>>>>>> 06c67a4350b1a4dbc1f57f1e9bc8ccef10583e76
                achieving "+-30mm" accuracy at range < 10m.  A mean of 0.0m and
                stddev of 0.01m will put 99.7% of samples within 0.03m of the true
                reading. -->
