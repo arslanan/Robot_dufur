@@ -1,0 +1,14 @@
+<launch>
+	<!--Run the 2 .launch files: robot description ans robot controller-->
+
+	<include file="$(find robot_description)/launch/gazebo_xacro.launch"/>
+	<include file="$(find robot_arm_control)/launch/robot_arm_control.launch"/>
+
+	<!--Create the relay between /rrbot/joint_states and /joint_states-->
+        <node name="relay_controller" pkg="topic_tools" type="relay" args="/rrbot/joint_states /joint_states"/>
+
+
+	<!--Run rviz with the robot sensors and maps
+	<node name="rviz" pkg="rviz" type="rviz" args="-d $(find mon_futur_robot_slam)/config/config.rviz"/>-->
+	
+</launch>
