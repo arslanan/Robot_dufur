@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+
+<launch>
+<node name="deplacement_avec_pid" pkg="robot_move" type="deplacement_avec_pid.py" />
+</launch>
