@@ -68,6 +68,24 @@ class data_getting():
         self.publisher_angle = rospy.Publisher('rrbot/joint1_position_controller/command', Float64)
         self.publisher_L = rospy.Publisher('rrbot/joint1_position_controller/command', Float64)
 
+        print(" Init Gazebo ")
+        
+        listener = tf.TransformListener()
+        print("Waiting for gazebo services...")
+        rospy.wait_for_service("gazebo/delete_model")
+        rospy.wait_for_service("gazebo/spawn_sdf_model")
+        rospy.wait_for_service("gazebo/get_model_state")
+        print("Got it.")
+        delete_model = rospy.ServiceProxy("gazebo/delete_model", DeleteModel)
+        spawn_model = rospy.ServiceProxy("gazebo/spawn_sdf_model", SpawnModel)
+        get_model_state = rospy.ServiceProxy("gazebo/get_model_state", GetModelState)
+        nb_plants = 10
+        plants = [i for i in range(nb_plants)]
+       
+        with open("./laser.sdf", "rw") as f:
+            self.laser_sdf = f.readlines()
+
+
     ## Callback pour les suscribers    
     def callback_matrice1(self,data):
         self.matrice1 = np.array(data.K).reshape(3,3)
@@ -92,6 +110,52 @@ class data_getting():
     def callback_cmd(self,data):
         self.consigne = data
     
+    def eradication(self):
+        orient = Quaternion(0,0,0,0)
+        
+        try: #listen to tf
+            (trans,rot) = listener.lookupTransform('cameraBras_link', '/base_link', rospy.Time(0))
+        except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
+            continue
+        
+        chara = self.laser_sdf[6].split(' ')
+        #x = chara[10], y = chara[11], z = chara[12]
+
+        laser = "laser"
+        laser_sdf[6] = "         <pose> "+str(round(trans[0], 3))+" "+str(round(trans[1], 3))+" "+str(chara[12])+" 0 0 0 </pose>\n"
+
+        with open("./laser.sdf", "w") as f:
+            laser_sdf = f.writelines(laser_sdf)
+            
+        with open("./laser.sdf", "r") as f:
+            laser_sdf = f.read()
+            
+        laser_pose = Pose(Point(x=trans[0], y=trans[1], z=trans[2]), orient)
+	   spawn_model(laser, laser_sdf, "", laser_pose, "world")
+        print("Spawn model:", laser)
+        
+        # suppression plants   
+        l_dists = []
+	   for i in plants:
+           plant_name="plant{}".format(i)
+           print(i, plant_name)
+           p = get_model_state("floor", plant_name)
+           x = p.pose.position.x
+           y = p.pose.position.y
+           l_dists.append(np.sqrt((x-trans[0])**2 + (y-trans[1])**2))
+           
+        print(l_dists)
+        ind = np.argmin(l_dists)
+	   print(ind)
+	   print(plants)
+        ind2 = plants.pop(ind)
+	   print(plants,"plant{}".format(ind2))
+	   
+        delete_model("plant{}".format(ind))
+
+	   delete_model(laser)
+        print("Deleting model:", laser)
+
     
     # Fonction principale a appeler en boucle 
     def control(self):
@@ -188,7 +252,7 @@ class data_getting():
                         self.consigne.linear.x = 0
                         self.pub.publish(self.consigne)
                          # quand fini peindre mettre à false
-                        #peindre
+                        self.eradication()
                                         
             else : # On ne detecte pas de plante, il fausdra bouger aléatoirement
                 print("Je cherche une plante")
