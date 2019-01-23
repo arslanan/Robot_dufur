@@ -107,9 +107,6 @@ class data_getting():
             a,b = detect(self.img1)
             print("image")
             if a!=False:
-                self.consigne.linear.x = 0
-                self.consigne.angular.z = 0
-                self.pub.publish(self.consigne)
                 self.cx,self.cy = a,b
                 self.angle, self.hauteur = getAngle(self.img1,self.cx,self.cy)
                 # Regler angle

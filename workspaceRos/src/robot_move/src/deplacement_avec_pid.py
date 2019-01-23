@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 """
 Created on Tue Jul 10 12:54:53 2018
@@ -50,7 +50,6 @@ class data_getting():
         self.cx = None
         self.cy = None
         self.laserize = False
-        self.consigne.linear.x = 0
         self.pidangle = PID(0.01, 0.001, 0.005, setpoint=0)
         self.pidangle.output_limits = (-0.1, 0.1)
         self.pub = rospy.Publisher(NodeCommande, Twist, queue_size=10)
@@ -114,6 +113,7 @@ class data_getting():
                 if self.angle >= ANGLE_MAX or self.angle <= ANGLE_MIN :                  
                     while self.angle >= ANGLE_MAX or self.angle <= ANGLE_MIN :
                         print("je suis dans le while je regle l'angle")
+                        self.consigne.linear.x = 0
                         a,b = detect(self.img1)
                         self.cx,self.cy = a,b
                         self.angle, self.hauteur = getAngle(self.img1,self.cx,self.cy)
@@ -156,7 +156,7 @@ class data_getting():
 
 		
 def main():
-	rospy.init_node('anything', anonymous=False)
+	rospy.init_node('deplacement_avec_pid', anonymous=False)
 	data = data_getting()
 	rate = rospy.Rate(4)
 	
