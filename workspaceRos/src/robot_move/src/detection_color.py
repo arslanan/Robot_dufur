@@ -18,7 +18,7 @@ def detect(img):
     contours, hierarchy = cv2.findContours(imgSeg,cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     
     if contours == []:
-        return False,False
+        return False,False,False
     
     # Liste des tailles des contours
     taille = []
@@ -31,7 +31,7 @@ def detect(img):
     M = cv2.moments(contours[pose])
     cx = int(M['m10']/M['m00'])
     cy = int(M['m01']/M['m00'])
-    return cx,cy
+    return cx,cy,cv2.contourArea(contours[pose]) 
 
 
 
