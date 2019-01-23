@@ -21,29 +21,32 @@ Pour pouvoir lancer la modélisation il faut :
 
 ## Initialisation du workspace
 
-Dans un terminal : 
-
-*cd workspaceRos/devel
-*source setup.sh
-*source setup.bash
-*cd ..
-*catkin_make
-
+Dans un terminal :
+ 
+```
+cd workspaceRos/devel
+source setup.sh
+source setup.bash
+cd ..
+catkin_make
+```
 
 ## Lancement de la modélisation
 
 Dans le même terminal : 
 
-*roslaunch robot_global_result global_result.launch
+```
+roslaunch robot_global_result global_result.launch
+```
 
 ## Auteurs
 
-*Antony ARSLANYAN		https://github.com/arslanan
-*Juliette BRUGIER		https://github.com/brugieju
-*Maria Luiza COSTA VIANNA
-*Sarah DELMAS
-*Olivier LAURENDIN
-*Louis VALERY
+Antony ARSLANYAN		https://github.com/arslanan
+Juliette BRUGIER		https://github.com/brugieju
+Maria Luiza COSTA VIANNA
+Sarah DELMAS
+Olivier LAURENDIN
+Louis VALERY
 
 
 
