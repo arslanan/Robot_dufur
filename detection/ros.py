@@ -21,6 +21,7 @@ from getAngleHauteur import getAngle
 from detection_color import detect
 import numpy as np
 import cv2
+from gazebo_msgs.srv import DeleteModel
 
 ANGLE_MAX = 0.1
 ANGLE_MIN = -0.1
@@ -56,6 +57,20 @@ class data_getting():
         self.listener_img1 = rospy.Subscriber(NodePicture1, CompressedImage, self.callback_img1)
         self.listener_img2 = rospy.Subscriber(NodePicture2, CompressedImage, self.callback_img2)
         self.listener_img2 = rospy.Subscriber(NodeCommande, Twist, self.callback_cmd)
+        
+<<<<<<< HEAD
+        #Gazebo
+=======
+        # Gazebo
+>>>>>>> c9bf3424611f7bbb8828a1e472f61542cd356dd8
+        print("Waiting for gazebo services...")
+        rospy.init_node("laser_node")
+        rospy.wait_for_service("gazebo/delete_model")
+        rospy.wait_for_service("gazebo/spawn_sdf_model")
+        rospy.wait_for_service("gazebo/get_model_state")
+    
+        print("Got it.")
+        self.delete_model = rospy.ServiceProxy("gazebo/delete_model", DeleteModel)
     
 
     ## Callback pour les suscribers    
@@ -135,10 +150,17 @@ class data_getting():
                         self.consigne.linear.x = 0
                         self.pub.publish(self.consigne)
                          # quand fini peindre mettre à false
-                        #peindre
+                        self.delete_model(plant_name)
                                         
             else : # On ne detecte pas de plante, il fausdra bouger aléatoirement
-                pass
+	    	passprint("Waiting for gazebo services...")
+		rospy.init_node("laser_node")
+    		rospy.wait_for_service("gazebo/delete_model")
+    		rospy.wait_for_service("gazebo/spawn_sdf_model")
+    		rospy.wait_for_service("gazebo/get_model_state")
+
+    		print("Got it.")
+    		delete_model = rospy.ServiceProxy("gazebo/delete_model", DeleteModel)
         else :
               print('### Pas d image ####')
                   
@@ -154,7 +176,7 @@ def main():
 		rate.sleep()	
 		
 	
-	
+
 if __name__ == '__main__':
 	main()
 				
