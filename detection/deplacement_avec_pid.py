@@ -21,7 +21,7 @@ from getAngleHauteur import getAngle
 from detection_color import detect
 import numpy as np
 import cv2
-from gazebo_msgs.srv import DeleteModel
+from simple_pid import PID
 
 ANGLE_MAX = 0.1
 ANGLE_MIN = -0.1
@@ -38,8 +38,9 @@ EPSILON_HAUTEUR = 20
 class data_getting():
     
     def __init__(self):
-		
-#		print('Init the variables')
+        
+        print('Init the variables')
+        
         self.img1 = None
         self.img2 = None
         self.matrice1 = None
@@ -49,21 +50,18 @@ class data_getting():
         self.cx = None
         self.cy = None
         self.laserize = False
+        self.pidangle = None
+        self.pidlinear = None
         self.pub = rospy.Publisher(NodeCommande, Twist, queue_size=10)
         self.consigne = Twist()
-#		print(" Init the subscribers ")
+        
+        print(" Init the subscribers ")
+        
         self.listener_mat1 = rospy.Subscriber(NodePictureName1, CameraInfo, self.callback_matrice1)	
         self.listener_mat2 = rospy.Subscriber(NodePictureName2, CameraInfo, self.callback_matrice2)
         self.listener_img1 = rospy.Subscriber(NodePicture1, CompressedImage, self.callback_img1)
         self.listener_img2 = rospy.Subscriber(NodePicture2, CompressedImage, self.callback_img2)
         self.listener_img2 = rospy.Subscriber(NodeCommande, Twist, self.callback_cmd)
-        
-        #Gazebo
-        print("Waiting for gazebo services...")
-        rospy.wait_for_service("gazebo/delete_model")
-    
-        print("Got it.")
-        self.delete_model = rospy.ServiceProxy("gazebo/delete_model", DeleteModel)
     
 
     ## Callback pour les suscribers    
@@ -107,23 +105,29 @@ class data_getting():
             a,b = detect(self.img1)
             print("image")
             if a!=False:
-                self.consigne.linear.x = 0
-                self.consigne.angular.z = 0
-                self.pub.publish(self.consigne)
+            
                 self.cx,self.cy = a,b
                 self.angle, self.hauteur = getAngle(self.img1,self.cx,self.cy)
                 # Regler angle
-                
-                if self.angle >= ANGLE_MAX:
-                    self.consigne.linear.x = 0
-                    self.consigne.angular.z = 0.02
-                    self.pub.publish(self.consigne)
-                    print("tourner g")
-                elif self.angle <= ANGLE_MIN:
-                    self.consigne.linear.x = 0
-                    self.consigne.angular.z = -0.02
-                    self.pub.publish(self.consigne)
-                    print("tourner d")
+                if self.angle >= ANGLE_MAX or self.angle <= ANGLE_MIN :
+                    while self.angle >= ANGLE_MAX or self.angle <= ANGLE_MIN :
+                        print("je suis dans le while je regle l'angle")
+                        self.consigne.linear.x = 0
+                        self.pidangle = PID(1, 0.1, 0.05, setpoint=0)
+                        self.pidangle.output_limits = (-0.1, 0.1)
+                        
+                        self.consigne.angular.z = self.pidangle(self.angle)
+                        self.pub.publish(self.consigne)
+                        
+#                    self.consigne.linear.x = 0
+#                    self.consigne.angular.z = 0.02
+#                    self.pub.publish(self.consigne)
+#                    print("tourner g")
+#                elif self.angle <= ANGLE_MIN:
+#                    self.consigne.linear.x = 0
+#                    self.consigne.angular.z = -0.02
+#                    self.pub.publish(self.consigne)
+#                    print("tourner d")
                 else :
                     print("HAUTEUR =" , self.hauteur)
                     self.consigne.angular.z = 0
@@ -145,16 +149,15 @@ class data_getting():
                         self.consigne.linear.x = 0
                         self.pub.publish(self.consigne)
                          # quand fini peindre mettre à false
-                        self.delete_model(plant_name)
+                        #peindre
                                         
             else : # On ne detecte pas de plante, il fausdra bouger aléatoirement
-                self.consigne.angular.z = 0.05
-                self.pub.publish(self.consigne)
-                
+                pass
         else :
               print('### Pas d image ####')
                   
 
+		
 def main():
 	rospy.init_node('anything', anonymous=False)
 	data = data_getting()
@@ -165,7 +168,7 @@ def main():
 		rate.sleep()	
 		
 	
-
+	
 if __name__ == '__main__':
 	main()
 				
