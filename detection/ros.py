@@ -21,6 +21,7 @@ from getAngleHauteur import getAngle
 from detection_color import detect
 import numpy as np
 import cv2
+from gazebo_msgs.srv import DeleteModel
 
 ANGLE_MAX = 10
 ANGLE_MIN = -10
@@ -54,6 +55,16 @@ class data_getting():
         self.listener_img1 = rospy.Subscriber(NodePicture1, CompressedImage, self.callback_img1)
         self.listener_img2 = rospy.Subscriber(NodePicture2, CompressedImage, self.callback_img2)
         self.listener_img2 = rospy.Subscriber(NodeCommande, Twist, self.callback_cmd)
+        
+        # Gazebo
+        print("Waiting for gazebo services...")
+        rospy.init_node("laser_node")
+        rospy.wait_for_service("gazebo/delete_model")
+        rospy.wait_for_service("gazebo/spawn_sdf_model")
+        rospy.wait_for_service("gazebo/get_model_state")
+    
+        print("Got it.")
+        self.delete_model = rospy.ServiceProxy("gazebo/delete_model", DeleteModel)
     
 
     ## Callback pour les suscribers    
@@ -113,7 +124,7 @@ class data_getting():
                     #recule
                     self.consigne.linear.x = -0.2
                 else:
-                    pass #peindre
+                    self.delete_model(plant_name)
                                     
         else : # On ne detecte pas de plante, il fausdra bouger aléatoirement
             pass
