@@ -50,7 +50,7 @@ class data_getting():
         self.cx = None
         self.cy = None
         self.laserize = False
-        self.pidangle = PID(0.01, 0.001, 0.005, setpoint=0)
+        self.pidangle = PID(0.07, 0.001, 0.005, setpoint=0)
         self.pidangle.output_limits = (-0.1, 0.1)
         self.pub = rospy.Publisher(NodeCommande, Twist, queue_size=10)
         self.consigne = Twist()

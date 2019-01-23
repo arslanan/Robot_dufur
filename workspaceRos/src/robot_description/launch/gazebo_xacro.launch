@@ -2,7 +2,9 @@
 
 <launch>
 
-	<arg name="gui" value="false"/>
+
+	<arg name="gui" />
+
 
 	<!--include package move-base-->
 	<include file="$(find ensta_move_base)/launch/move_base.launch"/>
