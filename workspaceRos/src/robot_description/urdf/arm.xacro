@@ -52,8 +52,6 @@
   <!--xacro:property name="arm_1_link" value="0.05" /--> <!-- Size of square 'camera' box -->
 
 
-
-   
  
   <joint name="joint_12" type="continuous">
     <parent link="arm_1_link"/>
@@ -71,7 +69,6 @@
         <cylinder length="${length_2}" radius="${radius}"/>
       </geometry>
       <!--<material name="black"/>-->
-
     </visual>
 
     <inertial>
