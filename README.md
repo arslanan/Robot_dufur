@@ -42,7 +42,7 @@ roslaunch robot_global_result global_result.launch
 ## Auteurs
 
 Antony ARSLANYAN		https://github.com/arslanan
-Juliette BRUGIER		https://github.com/brugieju
+<br/>Juliette BRUGIER		https://github.com/brugieju
 Maria Luiza COSTA VIANNA
 Sarah DELMAS
 Olivier LAURENDIN
