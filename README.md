@@ -43,10 +43,10 @@ roslaunch robot_global_result global_result.launch
 
 Antony ARSLANYAN		https://github.com/arslanan
 <br/>Juliette BRUGIER		https://github.com/brugieju
-Maria Luiza COSTA VIANNA
-Sarah DELMAS
-Olivier LAURENDIN
-Louis VALERY
+<br/>Maria Luiza COSTA VIANNA
+<br/>Sarah DELMAS
+<br/>Olivier LAURENDIN
+<br/>Louis VALERY
 
 
 
