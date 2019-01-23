@@ -15,17 +15,19 @@ NodeCommande = "/cmd_vel"
 import os
 import rospy
 from geometry_msgs.msg import Twist
+from std_msgs.msg import Float64
 from sensor_msgs.msg import CameraInfo
 from sensor_msgs.msg import CompressedImage
 from getAngleHauteur import getAngle
 from detection_color import detect
+from setArm import setL,setTheta
 import numpy as np
 import cv2
 from simple_pid import PID
 
 ANGLE_MAX = 0.1
 ANGLE_MIN = -0.1
-HAUTEUR = -470 # pixels
+HAUTEUR = -490 # pixels
 EPSILON_HAUTEUR = 20 
 
 # Calibration
@@ -41,6 +43,7 @@ class data_getting():
         
         print('Init the variables')
         
+        self.arreter = 0
         self.img1 = None
         self.img2 = None
         self.matrice1 = None
@@ -62,24 +65,26 @@ class data_getting():
         self.listener_img1 = rospy.Subscriber(NodePicture1, CompressedImage, self.callback_img1)
         self.listener_img2 = rospy.Subscriber(NodePicture2, CompressedImage, self.callback_img2)
         self.listener_img2 = rospy.Subscriber(NodeCommande, Twist, self.callback_cmd)
-        
+        self.publisher_angle = rospy.Publisher('rrbot/joint1_position_controller/command', Float64)
+        self.publisher_L = rospy.Publisher('rrbot/joint1_position_controller/command', Float64)
+
         print(" Init Gazebo ")
         
-	   listener = tf.TransformListener()
-	   print("Waiting for gazebo services...")
-	   rospy.wait_for_service("gazebo/delete_model")
-	   rospy.wait_for_service("gazebo/spawn_sdf_model")
+        listener = tf.TransformListener()
+        print("Waiting for gazebo services...")
+        rospy.wait_for_service("gazebo/delete_model")
+        rospy.wait_for_service("gazebo/spawn_sdf_model")
         rospy.wait_for_service("gazebo/get_model_state")
-	   print("Got it.")
-	   delete_model = rospy.ServiceProxy("gazebo/delete_model", DeleteModel)
-	   spawn_model = rospy.ServiceProxy("gazebo/spawn_sdf_model", SpawnModel)
+        print("Got it.")
+        delete_model = rospy.ServiceProxy("gazebo/delete_model", DeleteModel)
+        spawn_model = rospy.ServiceProxy("gazebo/spawn_sdf_model", SpawnModel)
         get_model_state = rospy.ServiceProxy("gazebo/get_model_state", GetModelState)
-	   nb_plants = 10
-	   plants = [i for i in range(nb_plants)]
+        nb_plants = 10
+        plants = [i for i in range(nb_plants)]
        
         with open("./laser.sdf", "rw") as f:
             self.laser_sdf = f.readlines()
-    
+
 
     ## Callback pour les suscribers    
     def callback_matrice1(self,data):
@@ -163,9 +168,49 @@ class data_getting():
         Quand il est bien placé apelle la fonction pour peindre  
         
         """
+        if self.arreter == 1:
+            if (self.img2 is not None) and (self.consigne is not None) :
+                             a,b,area = detect(self.img2)
+                             print("image bras area  = ", area)
+#                             while (area == False):
+#                                 self.consigne.linear.x = 0
+#                                 self.consigne.angular.z = 0.02
+#                                 self.pub.publish(self.consigne)
+#                                 a,b,area = detect(self.img2)
+#                                 print("tourner g")
+                                 
+                                 
+                             if a!=False:
+                                 [l,L,_] = self.img2.shape
+                                 self.cx,self.cy = a,b
+                                 #initial arm position
+                                 x0 = np.round(l/2)
+                                 y0 = np.round(L/2)
+                                 L20 = 0
+                                 
+                                 #desired position
+                                 xd = self.cx
+                                 yd = self.cy
+                                 print("x sit = ",x0,xd)
+                                 print("y sit = ",y0,yd)
+                                 #calculate next theta value
+                                 thetad = setTheta(xd,yd,x0,y0)
+                                 self.publisher_angle.publish(thetad)    
+                                 #calculate next L value
+                                 L2_fin,x0_laser,y0_laser = setL(L20,thetad,x0,y0,xd,yd)
+                                 self.publisher_L.publish(L2_fin)  
+                                 #calculate finaL laser position
+                                 x_laser = x0 + (0.4 + L2_fin)*np.cos(thetad) 
+                                 y_laser = y0 + (0.4 + L2_fin)*np.sin(thetad)
+    
 
-        if (self.img1 is not None) and (self.consigne is not None) :
-            a,b = detect(self.img1)
+                                 print ("thetad = ",thetad)
+                                 print ("L2 = ",L2_fin)
+                                 print (x_laser,y_laser)
+
+
+        if (self.img1 is not None) and (self.consigne is not None) and self.arreter == 0 :
+            a,b,_ = detect(self.img1)
             print("image")
             if a!=False:
 
@@ -177,7 +222,7 @@ class data_getting():
                     while self.angle >= ANGLE_MAX or self.angle <= ANGLE_MIN :
                         print("je suis dans le while je regle l'angle")
                         self.consigne.linear.x = 0
-                        a,b = detect(self.img1)
+                        a,b,_ = detect(self.img1)
                         self.cx,self.cy = a,b
                         self.angle, self.hauteur = getAngle(self.img1,self.cx,self.cy)
                         print("La consigne est de ",-self.consigne.angular.z)
@@ -201,6 +246,7 @@ class data_getting():
                         self.pub.publish(self.consigne)
                     else:
                         print("arrete toi!!!!")
+                        self.arreter = 1
                         #self.consigne.linear.x = -self.consigne.linear.x
                         self.consigne.angular.z = 0
                         self.consigne.linear.x = 0
