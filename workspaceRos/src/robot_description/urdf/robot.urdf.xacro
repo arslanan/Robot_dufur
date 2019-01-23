@@ -6,7 +6,7 @@
   <xacro:macro name="default_inertial" params="mass">
     <inertial>
       <mass value="${mass}" />
-      <inertia ixx="0.01" ixy="0.0" ixz="0.0" iyy="0.01" iyz="0.0" izz="0.01" />
+      <inertia ixx="0.01" ixy="0.0001" ixz="0.0001" iyy="0.01" iyz="0.0001" izz="0.01" />
     </inertial>
   </xacro:macro>
 
