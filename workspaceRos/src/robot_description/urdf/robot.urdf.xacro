@@ -153,13 +153,42 @@
 
 
 
+   <!-- Joint Chassis-Support Hokuyo-->
+   <joint name="support_hokuyo_joint" type="fixed">
+      <axis xyz="0 1 0" />
+      <origin xyz="0 0 0.22" rpy="0 0 0"/>
+      <parent link="chassis"/>
+      <child link="hokuyo_support"/>
+   </joint>
+
+   <!-- Hokuyo Support -->
+   <link name="hokuyo_support">
+      <collision>
+         <origin xyz="0 0 -0.03" rpy="0 0 0"/>
+         <geometry>
+    	    <cylinder radius="0.05" length="0.14"/>
+         </geometry>
+      </collision>
+      <visual>
+         <origin xyz="0 0 -0.03" rpy="0 0 0"/>
+         <geometry>
+            <cylinder radius="0.05" length="0.14"/>
+         </geometry>
+      </visual>
+      <inertial>
+         <mass value="1e-5" />
+         <origin xyz="0 0 0" rpy="0 0 0"/>
+         <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
+      </inertial>
+   </link>
+
 
 
    <!-- Joint Chassis-Hokuyo-->
    <joint name="hokuyo_joint" type="fixed">
       <axis xyz="0 1 0" />
       <origin xyz="0 0 0.22" rpy="0 0 0"/>
-      <parent link="chassis"/>
+      <parent link="hokuyo_support"/>
       <child link="hokuyo_link"/>
    </joint>
 
@@ -168,13 +197,13 @@
       <collision>
          <origin xyz="0 0 -0.03" rpy="0 0 0"/>
          <geometry>
-    	    <cylinder radius="0.05" length="0.2"/>
+    	    <cylinder radius="0.05" length="0.05"/>
          </geometry>
       </collision>
       <visual>
          <origin xyz="0 0 -0.03" rpy="0 0 0"/>
          <geometry>
-            <cylinder radius="0.05" length="0.2"/>
+            <cylinder radius="0.05" length="0.05"/>
          </geometry>
       </visual>
       <inertial>
@@ -188,7 +217,7 @@
    <gazebo reference="hokuyo_link">
       <sensor type="ray" name="head_hokuyo_sensor">
          <pose>0 0 0.5 0 0 0</pose>
-         <visualize>true</visualize>
+         <visualize>false</visualize>
          <update_rate>2</update_rate>
          <ray>
             <scan>
@@ -419,6 +448,36 @@
    </gazebo>
 
 
+
+   <!-- Joint Chassis-Sonar-->
+   <!--<joint name="sonar_joint" type="fixed">
+      <axis xyz="0 0 0" />
+      <origin xyz="0.2 0.05 0.09" rpy="0 0 0"/>
+      <parent link="chassis"/>
+      <child link="sonar_link"/>
+   </joint>-->
+
+   <!-- Sonar -->
+   <!--<link name="sonar_link">
+      <collision>
+         <origin xyz="0 0 0" rpy="1.5707 1.5707 1.5707"/>
+         <geometry>
+    	    <cylinder radius="0.02" length="0.015"/>
+         </geometry>
+      </collision>
+      <visual>
+         <origin xyz="0 0 0" rpy="1.5707 1.5707 1.5707"/>
+         <geometry>
+            <cylinder radius="0.02" length="0.015"/>
+         </geometry>
+      </visual>
+      <inertial>
+         <mass value="1e-5" />
+         <origin xyz="0 0 0" rpy="0 0 0"/>
+         <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
+      </inertial>
+   </link>-->
+   
    
 
 </robot>
