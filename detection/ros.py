@@ -60,10 +60,7 @@ class data_getting():
         
         #Gazebo
         print("Waiting for gazebo services...")
-        rospy.init_node("laser_node")
         rospy.wait_for_service("gazebo/delete_model")
-        rospy.wait_for_service("gazebo/spawn_sdf_model")
-        rospy.wait_for_service("gazebo/get_model_state")
     
         print("Got it.")
         self.delete_model = rospy.ServiceProxy("gazebo/delete_model", DeleteModel)
