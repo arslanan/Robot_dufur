@@ -301,7 +301,7 @@
    <!-- Plugin Chassis-Camera -->
 <!-- joint Bras-Camera -->
    <joint name="cameraBras_joint" type="fixed">
-      <origin xyz="0 0 ${length_4}" rpy="0 0 0"/>
+      <origin xyz="0 0 ${length_4}" rpy="0 -1.7 0"/>
       <parent link="laser"/>
       <child link="cameraBras_link"/>
    </joint>
