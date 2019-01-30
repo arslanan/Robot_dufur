@@ -26,14 +26,16 @@ import cv2
 from simple_pid import PID
 import tf
 from gazebo_msgs.srv import DeleteModel, SpawnModel, GetModelState
+import time
 
-ANGLE_MAX = 0.1
-ANGLE_MIN = -0.1
-HAUTEUR = -490 # pixels
+
+ANGLE_MAX = 0.2
+ANGLE_MIN = -0.2
+HAUTEUR = -485 # pixels
 EPSILON_HAUTEUR = 20 
 AREA_MIN = 5000
 L20_min  = -1
-L20_max = 0
+L20_max = 1
 # Calibration
 #d1 =   --> h1 = ?
 #d2 =   --> h2 = ?
@@ -57,10 +59,12 @@ class data_getting():
         self.cx = None
         self.cy = None
         self.laserize = False
-        self.pidangle = PID(0.07, 0.001, 0.005, setpoint=0)
+        self.pidangle = PID(0.03, 0.001, 0.005, setpoint=0)
         self.pidangle.output_limits = (-0.1, 0.1)
         self.pub = rospy.Publisher(NodeCommande, Twist, queue_size=10)
         self.consigne = Twist()
+        self.arm_init = False
+        self.C_arm = 0                  #L_arm: commande pour controller la longueur du bras (entre -0.2 et 0)
         
         print(" Init the subscribers ")
         
@@ -70,7 +74,7 @@ class data_getting():
         self.listener_img2 = rospy.Subscriber(NodePicture2, CompressedImage, self.callback_img2)
         self.listener_img2 = rospy.Subscriber(NodeCommande, Twist, self.callback_cmd)
         self.publisher_angle = rospy.Publisher('rrbot/joint1_position_controller/command', Float64)
-        self.publisher_L = rospy.Publisher('rrbot/joint1_position_controller/command', Float64)
+        self.publisher_L = rospy.Publisher('rrbot/joint2_position_controller/command', Float64)
 
         print(" Init Gazebo ")
         
@@ -169,59 +173,69 @@ class data_getting():
         Detecte la plante  --> il faudra ajouter si rien est detecté, bouger aléatoirement  
         La place en son centre
         S'avance vers elle 
-        
+        self.L_arm = 0
         Quand il est bien placé apelle la fonction pour peindre  
         
         """
         if self.arreter == 1:
+            print("ETAT = arret")
             if (self.img2 is not None) and (self.consigne is not None) :
-                             a,b,area = detect(self.img2)
-                             #print("image bras area  = ", area)
-#                             while (area == False):
-#                                 self.consigne.linear.x = 0
-#                                 self.consigne.angular.z = 0.02
-#                                 self.pub.publish(self.consigne)
-#                                 a,b,area = detect(self.img2)
-#                                 print("tourner g")
-                 
-                             if a!=False:
-                                 [l,L,_] = self.img2.shape
-                                 self.cx,self.cy = a,b
-                                 #initial arm position
-                                 x0 = np.round(l/2)
-                                 y0 = np.round(L/2)
-                                 L20 = 0
-                                 
-                                 #desired position
-                                 xd = self.cx
-                                 yd = self.cy
-                                 print("x sit = ",x0,xd)
-                                 print("y sit = ",y0,yd)
-                                 #calculate next theta value
-                                 thetad = setTheta(xd,yd,x0,y0)
-                                 self.publisher_angle.publish(thetad)    
-                                 #calculate next L value
-                                 L2_fin,x0_laser,y0_laser = setL(L20,thetad,x0,y0,xd,yd)
-                                 self.publisher_L.publish(L2_fin) 
-                                 a,b,area = detect(self.img2)
-                                 L20 = L20 + L2_fin
-                                 if(b > np.round(L/2) and L20 > L20_min):
-                                     while (b > np.round(L/2)):
-                                         a,b,area = detect(self.img2)
-                                         self.publisher_L.publish(L20 - 0.1)
-                                 if(b < np.round(L/2) and L20 < L20_max):
-                                     while (b < np.round(L/2)):
-                                         a,b,area = detect(self.img2)
-                                         self.publisher_L.publish(L20 - 0.1)        
-                                         
-                                         
-                                 self.arreter = 0
-                                 self.eradication()
+                 a,b,area = detect(self.img2)
+                 #print("image bras area  = ", area)
+    #                             while (area == False):
+    #                                 self.consigne.linear.x = 0
+    #                                 self.consigne.angular.z = 0.02
+    #                                 self.pub.publish(self.consigne)
+    #                                 a,b,area = dself.L_arm = 0etect(self.img2)
+    #                                 print("tourner g")
+     
+                 if a!=False:
+                     [l,L,_] = self.img2.shape
+                     self.cx,self.cy = a,b
+                     #initial arm position
+                     x0 = np.round(l/2)
+                     y0 = np.round(L/2)
+                     
+                     
+                     #desired position
+                     
+                     if(self.arm_init == True):
+                         xd = self.cx
+                         yd = self.cy
+    
+                         #calculate next theta value
+                         thetad = setTheta(xd,yd,x0,y0, self.C_arm)
+                         self.publisher_angle.publish(thetad)    
+                         #calculate next L value
+                         L2_fin,x0_laser,y0_laser = setL(self.C_arm,thetad,x0,y0,xd,yd)
+                         self.publisher_L.publish(self.C_arm + L2_fin) 
+                         self.C_arm = self.C_arm + L2_fin
+                         self.arm_init = False
+                         
+                     a,b,area = detect(self.img2)
+                     if(b > np.round(L/2) and self.C_arm > L20_min):
+                         a,b,area = detect(self.img2)
+                         self.C_arm = self.C_arm - 0.001
+                         self.publisher_L.publish(self.C_arm)
+                             
+                     elif(b < np.round(L/2) and self.C_arm < L20_max):
+                         a,b,area = detect(self.img2)
+                         self.C_arm = self.C_arm + 0.001
+                         self.publisher_L.publish(self.C_arm)        
+                             
+                     
+                     if(abs(x0 - b) <= 10  and  abs(y0 - b) <= 10 ):                                        
+                         self.arreter = 0
+                         print("valide. attends 20s")
+                         time.sleep(20)
+                     #self.eradication()
 
 
-        if (self.img1 is not None) and (self.consigne is not None) and self.arreter == 0 :
+        elif (self.img1 is not None) and (self.consigne is not None) and self.arreter == 0 :
+            print("ETAT = avancer")
+            self.publisher_angle.publish(0)
+            self.publisher_L.publish(0)
             a,b,_ = detect(self.img1)
-            print("image")
             if a!=False:
 
                 self.cx,self.cy = a,b
@@ -230,18 +244,18 @@ class data_getting():
                 
                 if self.angle >= ANGLE_MAX or self.angle <= ANGLE_MIN :                  
                     while self.angle >= ANGLE_MAX or self.angle <= ANGLE_MIN :
-                        print("je suis dans le while je regle l'angle")
+#                        print("je suis dans le while je regle l'angle")
                         self.consigne.linear.x = 0
                         a,b,_ = detect(self.img1)
                         self.cx,self.cy = a,b
                         self.angle, self.hauteur = getAngle(self.img1,self.cx,self.cy)
-                        print("La consigne est de ",-self.consigne.angular.z)
-                        print("erreur", self.angle)
+#                        print("La consigne est de ",-self.consigne.angular.z)
+#                        print("erreur", self.angle)
                         self.consigne.angular.z = -self.pidangle(self.angle)
                         self.pub.publish(self.consigne)
                         
                 else :
-                    print("HAUTEUR =" , self.hauteur)
+#                    print("HAUTEUR =" , self.hauteur)
                     self.consigne.angular.z = 0
                     # regle distance
                     if self.hauteur >= HAUTEUR + EPSILON_HAUTEUR:
@@ -249,14 +263,15 @@ class data_getting():
                         #avance
                         self.consigne.linear.x = -0.1
                         self.pub.publish(self.consigne)
-                        print("recule")
+#                        print("recule")
                     elif self.hauteur <= HAUTEUR - EPSILON_HAUTEUR:
-                        print("avance")
+#                        print("avance")
                         self.consigne.linear.x = 0.1
                         self.pub.publish(self.consigne)
                     else:
                         print("arrete toi!!!!")
                         self.arreter = 1
+                        self.arm_init = True
                         #self.consigne.linear.x = -self.consigne.linear.x
                         self.consigne.angular.z = 0
                         self.consigne.linear.x = 0
