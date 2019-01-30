@@ -29,6 +29,7 @@ from gazebo_msgs.srv import DeleteModel, SpawnModel, GetModelState
 import time
 
 
+
 ANGLE_MAX = 0.2
 ANGLE_MIN = -0.2
 HAUTEUR = -485 # pixels
@@ -128,6 +129,7 @@ class data_getting():
         except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
             pass
         
+
         chara = self.laser_sdf[6].split(' ')
         #x = chara[10], y = chara[11], z = chara[12]
 
@@ -179,6 +181,7 @@ class data_getting():
         """
         if self.arreter == 1:
             print("ETAT = arret")
+
             if (self.img2 is not None) and (self.consigne is not None) :
                  a,b,area = detect(self.img2)
                  #print("image bras area  = ", area)
@@ -236,6 +239,7 @@ class data_getting():
             self.publisher_angle.publish(0)
             self.publisher_L.publish(0)
             a,b,_ = detect(self.img1)
+            print("image")
             if a!=False:
 
                 self.cx,self.cy = a,b
@@ -272,10 +276,12 @@ class data_getting():
                         print("arrete toi!!!!")
                         self.arreter = 1
                         self.arm_init = True
+
                         #self.consigne.linear.x = -self.consigne.linear.x
                         self.consigne.angular.z = 0
                         self.consigne.linear.x = 0
                         self.pub.publish(self.consigne)
+                        self.eradication()
                          # quand fini peindre mettre à false
                         
                                         

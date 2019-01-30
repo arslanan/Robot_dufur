@@ -4,7 +4,7 @@
 
 
       <model name="laser">
-         <pose> 0.57 0.0 0.08 0 0 0 </pose>
+         <pose> -0.17 0.0 0.08 0 0 0 </pose>
          <static>true</static>
          <link name="laser_link">
             <visual name="laser_visual">
