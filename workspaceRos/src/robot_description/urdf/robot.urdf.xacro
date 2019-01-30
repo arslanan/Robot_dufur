@@ -11,13 +11,13 @@
   </xacro:macro>
 
    <!-- Robot -->
-   <!--link name="base_link"/> <permet d'utiliser Move Base >
+   <link name="base_link"/> <!--permet d'utiliser Move Base -->
 
    <joint name="base_joint" type="fixed">
       <parent link="base_link"/>
       <child link="chassis" />
       <origin xyz="0 0 0.01" rpy="0 0 0"/>
-   </joint-->
+   </joint>
 
 
 

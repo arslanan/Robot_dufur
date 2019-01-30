@@ -88,6 +88,7 @@ class data_getting():
         dirPath = os.path.dirname(__file__)
         with open(os.path.join(dirPath, "laser.sdf"), "rw") as f:
             self.laser_sdf = f.readlines()
+            print('laser', self.laser_sdf)
 
 
     ## Callback pour les suscribers    
@@ -117,10 +118,10 @@ class data_getting():
     def eradication(self):
         orient = Quaternion(0,0,0,0)
         
-        try: #listen to tf
-            (trans,rot) = self.listener.lookupTransform('cameraBras_link', '/base_link', rospy.Time(0))
-        except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
-            pass
+#        try: #listen to tf
+        (trans,rot) = self.listener.lookupTransform('cameraBras_link', '/base_link', rospy.Time(0))
+#        exept (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
+#            pass
         
         chara = self.laser_sdf[6].split(' ')
         #x = chara[10], y = chara[11], z = chara[12]
