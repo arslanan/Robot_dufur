@@ -1,4 +1,7 @@
 <?xml version="1.0"?>
+   <!-- Cette urdf defini physiquement le robot. Il est associé 
+   à robot.wheels.xacro et à arm.xacro qui definissent respectivement ses roues et son bras articulé -->
+
 <robot name="monRobot" xmlns:xacro="http://ros.org/wiki/xacro">
   <xacro:include filename="$(find robot_description)/urdf/robot.wheels.xacro"/>
   <xacro:include filename="$(find robot_description)/urdf/arm.xacro"/>
