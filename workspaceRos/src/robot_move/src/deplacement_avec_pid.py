@@ -250,6 +250,7 @@ class data_getting():
                         self.consigne.linear.x = 0.1
                         self.pub.publish(self.consigne)
                     else:
+                        self.eradication()
                         print("arrete toi!!!!")
                         self.arreter = 1
                         #self.consigne.linear.x = -self.consigne.linear.x
