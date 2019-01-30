@@ -1,4 +1,7 @@
 <?xml version="1.0"?>
+   <!-- Cette urdf defini physiquement le robot. Il est associe 
+   a robot.wheels.xacro et a arm.xacro qui definissent respectivement ses roues et son bras articule -->
+
 <robot name="monRobot" xmlns:xacro="http://ros.org/wiki/xacro">
   <xacro:include filename="$(find robot_description)/urdf/robot.wheels.xacro"/>
   <xacro:include filename="$(find robot_description)/urdf/arm.xacro"/>
@@ -324,10 +327,7 @@
       </sensor>
    </gazebo>
 
-   <!-- Plugin Chassis-Camera -->
-   <!-- Plugin Chassis-Camera -->
-   <!-- Plugin Chassis-Camera -->
-   <!-- Plugin Chassis-Camera -->
+
 <!-- joint Bras-Camera -->
    <joint name="cameraBras_joint" type="fixed">
       <origin xyz="0 0 ${length_4}" rpy="0 -1.7 0"/>
