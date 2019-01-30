@@ -21,14 +21,15 @@ from sensor_msgs.msg import CompressedImage
 from getAngleHauteur import getAngle
 from detection_color import detect
 from setArm import setL,setTheta
+import time
 import numpy as np
 import cv2
 from simple_pid import PID
 import tf
 from gazebo_msgs.srv import DeleteModel, SpawnModel, GetModelState
 
-ANGLE_MAX = 0.20
-ANGLE_MIN = -0.20
+ANGLE_MAX = 0.10
+ANGLE_MIN = -0.10
 HAUTEUR = -490 # pixels
 EPSILON_HAUTEUR = 20 
 
@@ -55,7 +56,7 @@ class data_getting():
         self.cx = None
         self.cy = None
         self.laserize = False
-        self.pidangle = PID(0.07, 0.001, 0.005, setpoint=0)
+        self.pidangle = PID(0.01, 0.001, 0.005, setpoint=0)
         self.pidangle.output_limits = (-0.1, 0.1)
         self.pub = rospy.Publisher(NodeCommande, Twist, queue_size=10)
         self.consigne = Twist()
@@ -171,51 +172,66 @@ class data_getting():
         Quand il est bien placé apelle la fonction pour peindre  
         
         """
-        if self.arreter == 1:
+        
+        
+        
+        Lorder = [4,1]
+        
+        if self.arreter == 1 : 
+            ind = Lorder[-1]
+            Lorder.pop()
+
+            self.delete_model("plant{}".format(ind))
+            self.arreter = 0
+            time.sleep(4)
+
             
-            if (self.img2 is not None) and (self.consigne is not None) :
-                             a,b,area = detect(self.img2)
-                             print("image bras area  = ", area)
-#                             while (area == False):
-#                                 self.consigne.linear.x = 0
-#                                 self.consigne.angular.z = 0.02
-#                                 self.pub.publish(self.consigne)
-#                                 a,b,area = detect(self.img2)
-#                                 print("tourner g")
-                                 
-                                 
-                             if a!=False:
-                                 [l,L,_] = self.img2.shape
-                                 self.cx,self.cy = a,b
-                                 #initial arm position
-                                 x0 = np.round(l/2)
-                                 y0 = np.round(L/2)
-                                 L20 = 0
-                                 
-                                 #desired position
-                                 xd = self.cx
-                                 yd = self.cy
-                                 print("x sit = ",x0,xd)
-                                 print("y sit = ",y0,yd)
-                                 #calculate next theta value
-                                 thetad = setTheta(xd,yd,x0,y0)
-                                 self.publisher_angle.publish(thetad)    
-                                 #calculate next L value
-                                 L2_fin,x0_laser,y0_laser = setL(L20,thetad,x0,y0,xd,yd)
-                                 self.publisher_L.publish(L2_fin)  
-                                 #calculate finaL laser position
-                                 x_laser = x0 + (0.4 + L2_fin)*np.cos(thetad) 
-                                 y_laser = y0 + (0.4 + L2_fin)*np.sin(thetad)
-    
+        
+#        if self.arreter == 1:
+#            
+#            if (self.img2 is not None) and (self.consigne is not None) :
+#                             a,b,area = detect(self.img2)
+#                             print("image bras area  = ", area)
+##                             while (area == False):
+##                                 self.consigne.linear.x = 0
+##                                 self.consigne.angular.z = 0.02
+##                                 self.pub.publish(self.consigne)
+##                                 a,b,area = detect(self.img2)
+##                                 print("tourner g")
+#                                 
+#                                 
+#                             if a!=False:
+#                                 [l,L,_] = self.img2.shape
+#                                 self.cx,self.cy = a,b
+#                                 #initial arm position
+#                                 x0 = np.round(l/2)
+#                                 y0 = np.round(L/2)
+#                                 L20 = 0
+#                                 
+#                                 #desired position
+#                                 xd = self.cx
+#                                 yd = self.cy
+#                                 print("x sit = ",x0,xd)
+#                                 print("y sit = ",y0,yd)
+#                                 #calculate next theta value
+#                                 thetad = setTheta(xd,yd,x0,y0)
+#                                 self.publisher_angle.publish(thetad)    
+#                                 #calculate next L value
+#                                 L2_fin,x0_laser,y0_laser = setL(L20,thetad,x0,y0,xd,yd)
+#                                 self.publisher_L.publish(L2_fin)  
+#                                 #calculate finaL laser position
+#                                 x_laser = x0 + (0.4 + L2_fin)*np.cos(thetad) 
+#                                 y_laser = y0 + (0.4 + L2_fin)*np.sin(thetad)
+#    
+#
+#                                 print ("thetad = ",thetad)
+#                                 print ("L2 = ",L2_fin)
+#                                 print (x_laser,y_laser)
+#                                 
+#                                 #self.eradication()
 
-                                 print ("thetad = ",thetad)
-                                 print ("L2 = ",L2_fin)
-                                 print (x_laser,y_laser)
-                                 
-                                 self.eradication()
 
-
-        if (self.img1 is not None) and (self.consigne is not None) and self.arreter == 0 :
+        elif (self.img1 is not None) and (self.consigne is not None) and self.arreter == 0 :
             a,b,_ = detect(self.img1)
             
             print("image")
@@ -253,12 +269,12 @@ class data_getting():
                         self.pub.publish(self.consigne)
                     else:
                         print("arrete toi!!!!")
-                        self.arreter = 0
+                        self.arreter = 1
                         #self.consigne.linear.x = -self.consigne.linear.x
                         self.consigne.angular.z = 0
                         self.consigne.linear.x = 0
                         self.pub.publish(self.consigne)
-                        self.eradication()
+
                          # quand fini peindre mettre à false
                         
                                         

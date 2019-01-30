@@ -17,14 +17,14 @@ def getAngle(cameraImage,cx,cy):
     [l,L,_] = cameraImage.shape
     
     # Voir ce que voit le robot
-    cv2.namedWindow("proc")
-    cv2.resizeWindow("proc",l,L)
-    cv2.moveWindow("proc",0,0)   
+    #cv2.namedWindow("proc")
+    #cv2.resizeWindow("proc",l,L)
+    #cv2.moveWindow("proc",0,0)   
 
     errx = cx-l/2
     erry = cy-L/2
           
     angle = math.atan2((l/2-cx),(L/2-cy))
     hauteur = cy - L
-         
+    
     return angle, hauteur
