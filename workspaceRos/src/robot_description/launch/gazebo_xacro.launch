@@ -3,7 +3,7 @@
 <launch>
 
 
-	<arg name="gui" />
+	<arg name="gui" default = "true"/>
 
 
 	<!--include package move-base>

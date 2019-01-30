@@ -15,7 +15,7 @@ def detect(img):
     # Saturation de l'image
     imgSeg = cv2.inRange(imgHSV,lower_green,upper_green)
     # Trouver les contours
-    contours, hierarchy = cv2.findContours(imgSeg,cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    _, contours, hierarchy = cv2.findContours(imgSeg,cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     
     if contours == []:
         return False,False,False

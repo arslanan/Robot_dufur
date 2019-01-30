@@ -1,3 +1,6 @@
+# This file define the controllers of the joints
+# For each of them there is a adjustable PID
+
 rrbot:
   # Publish all joint states -----------------------------------
   joint_state_controller:
