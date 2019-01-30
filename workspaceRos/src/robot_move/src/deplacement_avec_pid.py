@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/python2.7
 # -*- coding: utf-8 -*-
 """
 Created on Tue Jul 10 12:54:53 2018
@@ -75,7 +75,9 @@ class data_getting():
         self.listener = tf.TransformListener()
         print("Waiting for gazebo services...")
         rospy.wait_for_service("gazebo/delete_model")
+        print("service1")
         rospy.wait_for_service("gazebo/spawn_sdf_model")
+        print("seervice2")
         rospy.wait_for_service("gazebo/get_model_state")
         print("Got it.")
         self.delete_model = rospy.ServiceProxy("gazebo/delete_model", DeleteModel)
@@ -83,8 +85,8 @@ class data_getting():
         self.get_model_state = rospy.ServiceProxy("gazebo/get_model_state", GetModelState)
         self.nb_plants = 10
         self.plants = [i for i in range(self.nb_plants)]
-       
-        with open("./laser.sdf", "rw") as f:
+        dirPath = os.path.dirname(__file__)
+        with open(os.path.join(dirPath, "laser.sdf"), "rw") as f:
             self.laser_sdf = f.readlines()
 
 
