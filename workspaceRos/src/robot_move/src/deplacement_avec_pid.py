@@ -31,7 +31,9 @@ ANGLE_MAX = 0.1
 ANGLE_MIN = -0.1
 HAUTEUR = -490 # pixels
 EPSILON_HAUTEUR = 20 
-
+AREA_MIN = 5000
+L20_min  = -1
+L20_max = 0
 # Calibration
 #d1 =   --> h1 = ?
 #d2 =   --> h2 = ?
@@ -174,15 +176,14 @@ class data_getting():
         if self.arreter == 1:
             if (self.img2 is not None) and (self.consigne is not None) :
                              a,b,area = detect(self.img2)
-                             print("image bras area  = ", area)
+                             #print("image bras area  = ", area)
 #                             while (area == False):
 #                                 self.consigne.linear.x = 0
 #                                 self.consigne.angular.z = 0.02
 #                                 self.pub.publish(self.consigne)
 #                                 a,b,area = detect(self.img2)
 #                                 print("tourner g")
-                                 
-                                 
+                 
                              if a!=False:
                                  [l,L,_] = self.img2.shape
                                  self.cx,self.cy = a,b
@@ -201,16 +202,20 @@ class data_getting():
                                  self.publisher_angle.publish(thetad)    
                                  #calculate next L value
                                  L2_fin,x0_laser,y0_laser = setL(L20,thetad,x0,y0,xd,yd)
-                                 self.publisher_L.publish(L2_fin)  
-                                 #calculate finaL laser position
-                                 x_laser = x0 + (0.4 + L2_fin)*np.cos(thetad) 
-                                 y_laser = y0 + (0.4 + L2_fin)*np.sin(thetad)
-    
-
-                                 print ("thetad = ",thetad)
-                                 print ("L2 = ",L2_fin)
-                                 print (x_laser,y_laser)
-                                 
+                                 self.publisher_L.publish(L2_fin) 
+                                 a,b,area = detect(self.img2)
+                                 L20 = L20 + L2_fin
+                                 if(b > np.round(L/2) and L20 > L20_min):
+                                     while (b > np.round(L/2)):
+                                         a,b,area = detect(self.img2)
+                                         self.publisher_L.publish(L20 - 0.1)
+                                 if(b < np.round(L/2) and L20 < L20_max):
+                                     while (b < np.round(L/2)):
+                                         a,b,area = detect(self.img2)
+                                         self.publisher_L.publish(L20 - 0.1)        
+                                         
+                                         
+                                 self.arreter = 0
                                  self.eradication()
 
 
