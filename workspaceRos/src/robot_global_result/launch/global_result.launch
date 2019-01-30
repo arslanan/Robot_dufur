@@ -4,7 +4,7 @@
 	<!--Run the robot: robot description and robot arm controllers-->
 
 	<include file="$(find robot_description)/launch/gazebo_xacro.launch"  >
-		<arg name="gui" value="false"/> 
+		<arg name="gui" value="true"/> 
 	</include>
 	<include file="$(find robot_arm_control)/launch/robot_arm_control.launch"/>
 

@@ -27,8 +27,8 @@ from simple_pid import PID
 import tf
 from gazebo_msgs.srv import DeleteModel, SpawnModel, GetModelState
 
-ANGLE_MAX = 0.1
-ANGLE_MIN = -0.1
+ANGLE_MAX = 0.20
+ANGLE_MIN = -0.20
 HAUTEUR = -490 # pixels
 EPSILON_HAUTEUR = 20 
 
@@ -88,7 +88,6 @@ class data_getting():
         dirPath = os.path.dirname(__file__)
         with open(os.path.join(dirPath, "laser.sdf"), "rw") as f:
             self.laser_sdf = f.readlines()
-            print('laser', self.laser_sdf)
 
 
     ## Callback pour les suscribers    
@@ -119,10 +118,10 @@ class data_getting():
         orient = Quaternion(0,0,0,0)
         
 #        try: #listen to tf
-        (trans,rot) = self.listener.lookupTransform('cameraBras_link', '/base_link', rospy.Time(0))
+        (trans,rot) = self.listener.lookupTransform('arm_1_link', '/base_link', rospy.Time(0))
 #        exept (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
 #            pass
-        
+        print(trans)
         chara = self.laser_sdf[6].split(' ')
         #x = chara[10], y = chara[11], z = chara[12]
 
@@ -173,6 +172,7 @@ class data_getting():
         
         """
         if self.arreter == 1:
+            
             if (self.img2 is not None) and (self.consigne is not None) :
                              a,b,area = detect(self.img2)
                              print("image bras area  = ", area)
@@ -217,6 +217,7 @@ class data_getting():
 
         if (self.img1 is not None) and (self.consigne is not None) and self.arreter == 0 :
             a,b,_ = detect(self.img1)
+            
             print("image")
             if a!=False:
 
@@ -252,11 +253,12 @@ class data_getting():
                         self.pub.publish(self.consigne)
                     else:
                         print("arrete toi!!!!")
-                        self.arreter = 1
+                        self.arreter = 0
                         #self.consigne.linear.x = -self.consigne.linear.x
                         self.consigne.angular.z = 0
                         self.consigne.linear.x = 0
                         self.pub.publish(self.consigne)
+                        self.eradication()
                          # quand fini peindre mettre à false
                         
                                         
