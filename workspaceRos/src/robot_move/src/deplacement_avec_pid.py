@@ -14,7 +14,7 @@ NodeCommande = "/cmd_vel"
 
 import os
 import rospy
-from geometry_msgs.msg import Twist
+from geometry_msgs.msg import Twist,Pose,Point, Quaternion
 from std_msgs.msg import Float64
 from sensor_msgs.msg import CameraInfo
 from sensor_msgs.msg import CompressedImage
@@ -24,6 +24,8 @@ from setArm import setL,setTheta
 import numpy as np
 import cv2
 from simple_pid import PID
+import tf
+from gazebo_msgs.srv import DeleteModel, SpawnModel, GetModelState
 
 ANGLE_MAX = 0.1
 ANGLE_MIN = -0.1
@@ -70,17 +72,17 @@ class data_getting():
 
         print(" Init Gazebo ")
         
-        listener = tf.TransformListener()
+        self.listener = tf.TransformListener()
         print("Waiting for gazebo services...")
         rospy.wait_for_service("gazebo/delete_model")
         rospy.wait_for_service("gazebo/spawn_sdf_model")
         rospy.wait_for_service("gazebo/get_model_state")
         print("Got it.")
-        delete_model = rospy.ServiceProxy("gazebo/delete_model", DeleteModel)
-        spawn_model = rospy.ServiceProxy("gazebo/spawn_sdf_model", SpawnModel)
-        get_model_state = rospy.ServiceProxy("gazebo/get_model_state", GetModelState)
-        nb_plants = 10
-        plants = [i for i in range(nb_plants)]
+        self.delete_model = rospy.ServiceProxy("gazebo/delete_model", DeleteModel)
+        self.spawn_model = rospy.ServiceProxy("gazebo/spawn_sdf_model", SpawnModel)
+        self.get_model_state = rospy.ServiceProxy("gazebo/get_model_state", GetModelState)
+        self.nb_plants = 10
+        self.plants = [i for i in range(self.nb_plants)]
        
         with open("./laser.sdf", "rw") as f:
             self.laser_sdf = f.readlines()
@@ -114,46 +116,45 @@ class data_getting():
         orient = Quaternion(0,0,0,0)
         
         try: #listen to tf
-            (trans,rot) = listener.lookupTransform('cameraBras_link', '/base_link', rospy.Time(0))
+            (trans,rot) = self.listener.lookupTransform('cameraBras_link', '/base_link', rospy.Time(0))
         except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
-            continue
+            pass
         
         chara = self.laser_sdf[6].split(' ')
         #x = chara[10], y = chara[11], z = chara[12]
 
         laser = "laser"
-        laser_sdf[6] = "         <pose> "+str(round(trans[0], 3))+" "+str(round(trans[1], 3))+" "+str(chara[12])+" 0 0 0 </pose>\n"
+        self.laser_sdf[6] = "         <pose> "+str(round(trans[0], 3))+" "+str(round(trans[1], 3))+" "+str(chara[12])+" 0 0 0 </pose>\n"
 
         with open("./laser.sdf", "w") as f:
-            laser_sdf = f.writelines(laser_sdf)
+            self.laser_sdf = f.writelines(self.laser_sdf)
             
         with open("./laser.sdf", "r") as f:
-            laser_sdf = f.read()
-            
+            self.laser_sdf = f.read()
+        
         laser_pose = Pose(Point(x=trans[0], y=trans[1], z=trans[2]), orient)
-	   spawn_model(laser, laser_sdf, "", laser_pose, "world")
+        self.spawn_model(laser, self.laser_sdf, "", laser_pose, "world")
         print("Spawn model:", laser)
         
         # suppression plants   
         l_dists = []
-	   for i in plants:
-           plant_name="plant{}".format(i)
-           print(i, plant_name)
-           p = get_model_state("floor", plant_name)
-           x = p.pose.position.x
-           y = p.pose.position.y
-           l_dists.append(np.sqrt((x-trans[0])**2 + (y-trans[1])**2))
+        for i in self.plants:
+            plant_name="plant{}".format(i)
+            print(i, plant_name)
+            p = self.get_model_state("floor", plant_name)
+            x = p.pose.position.x
+            y = p.pose.position.y
+            l_dists.append(np.sqrt((x-trans[0])**2 + (y-trans[1])**2))
            
         print(l_dists)
         ind = np.argmin(l_dists)
-	   print(ind)
-	   print(plants)
-        ind2 = plants.pop(ind)
-	   print(plants,"plant{}".format(ind2))
-	   
-        delete_model("plant{}".format(ind))
-
-	   delete_model(laser)
+        print(ind)
+        print(self.plants)
+        ind2 = self.plants.pop(ind)
+        print(self.plants,"plant{}".format(ind2))
+        
+        self.delete_model("plant{}".format(ind))
+        self.delete_model(laser)
         print("Deleting model:", laser)
 
     
@@ -207,6 +208,8 @@ class data_getting():
                                  print ("thetad = ",thetad)
                                  print ("L2 = ",L2_fin)
                                  print (x_laser,y_laser)
+                                 
+                                 self.eradication()
 
 
         if (self.img1 is not None) and (self.consigne is not None) and self.arreter == 0 :
@@ -252,7 +255,7 @@ class data_getting():
                         self.consigne.linear.x = 0
                         self.pub.publish(self.consigne)
                          # quand fini peindre mettre à false
-                        self.eradication()
+                        
                                         
             else : # On ne detecte pas de plante, il fausdra bouger aléatoirement
                 print("Je cherche une plante")
