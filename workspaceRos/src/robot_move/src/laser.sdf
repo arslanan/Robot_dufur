@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<sdf version="1.4">
+   <world name="world">
+
+
+      <model name="laser">
+         <pose> 0.57 0.0 0.08 0 0 0 </pose>
+         <static>true</static>
+         <link name="laser_link">
+            <visual name="laser_visual">
+	       <geometry>
+	          <cylinder>
+	             <radius>0.01</radius>
+	             <length>0.1</length>
+      	          </cylinder>
+      	       </geometry>
+	       <material>
+	          <ambient>1 0 0 1</ambient>
+	          <diffuse>1 0 0 1</diffuse>
+	       </material>
+            </visual>
+         </link>
+      </model>
+
+
+   </world>
+</sdf>

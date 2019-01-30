@@ -1,9 +1,13 @@
+<?xml version="1.0"?>
+
 <launch>
 	<!--Run the 2 .launch files: robot description ans robot controller-->
 
-	<include file="$(find robot_description)/launch/gazebo_xacro.launch"/>
+	<include file="$(find robot_description)/launch/gazebo_xacro.launch"  >
+		<arg name="gui" value="false"/> 
+	</include>
 	<include file="$(find robot_arm_control)/launch/robot_arm_control.launch"/>
-
+	<include file="$(find robot_move)/launch/launchpy.launch"/>
 	<!--Create the relay between /rrbot/joint_states and /joint_states-->
         <node name="relay_controller" pkg="topic_tools" type="relay" args="/rrbot/joint_states /joint_states"/>
 

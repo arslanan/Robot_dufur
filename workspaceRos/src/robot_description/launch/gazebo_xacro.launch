@@ -2,11 +2,13 @@
 
 <launch>
 
-	<arg name="gui" value="false"/>
 
-	<!--include package move-base-->
+	<arg name="gui" />
+
+
+	<!--include package move-base>
 	<include file="$(find ensta_move_base)/launch/move_base.launch"/>
-	<!-- SLAM -->
+	< SLAM -->
 	    <include file="$(find gmapping)/launch/slam_gmapping_pr2.launch">
 	    </include>
 

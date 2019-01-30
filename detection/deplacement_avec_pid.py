@@ -7,9 +7,9 @@ Created on Tue Jul 10 12:54:53 2018
 """
 
 NodePictureName1 = "/rrbot/camera1/camera_info"
-NodePictureName2 = "/rrbot/camera2/camera_info"
+NodePictureName2 = "/rrbot/cameraBras/camera_info"
 NodePicture1 = "/rrbot/camera1/image_raw/compressed"
-NodePicture2 = "/rrbot/camera2/image_raw/compressed"
+NodePicture2 = "/rrbot/cameraBras/image_raw/compressed"
 NodeCommande = "/cmd_vel"
 
 import os
@@ -26,7 +26,7 @@ from simple_pid import PID
 ANGLE_MAX = 0.1
 ANGLE_MIN = -0.1
 HAUTEUR = -470 # pixels
-EPSILON_HAUTEUR = 20
+EPSILON_HAUTEUR = 20 
 
 # Calibration
 #d1 =   --> h1 = ?
@@ -50,8 +50,9 @@ class data_getting():
         self.cx = None
         self.cy = None
         self.laserize = False
-        self.pidangle = None
-        self.pidlinear = None
+        self.consigne.linear.x = 0
+        self.pidangle = PID(0.01, 0.001, 0.005, setpoint=0)
+        self.pidangle.output_limits = (-0.1, 0.1)
         self.pub = rospy.Publisher(NodeCommande, Twist, queue_size=10)
         self.consigne = Twist()
         
@@ -105,29 +106,22 @@ class data_getting():
             a,b = detect(self.img1)
             print("image")
             if a!=False:
-            
+
                 self.cx,self.cy = a,b
                 self.angle, self.hauteur = getAngle(self.img1,self.cx,self.cy)
                 # Regler angle
-                if self.angle >= ANGLE_MAX or self.angle <= ANGLE_MIN :
+                
+                if self.angle >= ANGLE_MAX or self.angle <= ANGLE_MIN :                  
                     while self.angle >= ANGLE_MAX or self.angle <= ANGLE_MIN :
                         print("je suis dans le while je regle l'angle")
-                        self.consigne.linear.x = 0
-                        self.pidangle = PID(1, 0.1, 0.05, setpoint=0)
-                        self.pidangle.output_limits = (-0.1, 0.1)
-                        
-                        self.consigne.angular.z = self.pidangle(self.angle)
+                        a,b = detect(self.img1)
+                        self.cx,self.cy = a,b
+                        self.angle, self.hauteur = getAngle(self.img1,self.cx,self.cy)
+                        print("La consigne est de ",-self.consigne.angular.z)
+                        print("erreur", self.angle)
+                        self.consigne.angular.z = -self.pidangle(self.angle)
                         self.pub.publish(self.consigne)
                         
-#                    self.consigne.linear.x = 0
-#                    self.consigne.angular.z = 0.02
-#                    self.pub.publish(self.consigne)
-#                    print("tourner g")
-#                elif self.angle <= ANGLE_MIN:
-#                    self.consigne.linear.x = 0
-#                    self.consigne.angular.z = -0.02
-#                    self.pub.publish(self.consigne)
-#                    print("tourner d")
                 else :
                     print("HAUTEUR =" , self.hauteur)
                     self.consigne.angular.z = 0
@@ -152,7 +146,10 @@ class data_getting():
                         #peindre
                                         
             else : # On ne detecte pas de plante, il fausdra bouger aléatoirement
-                pass
+                print("Je cherche une plante")
+                self.consigne.angular.z = 0.05
+                self.pub.publish(self.consigne)
+                
         else :
               print('### Pas d image ####')
                   
