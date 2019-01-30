@@ -170,7 +170,7 @@ class data_getting():
         	if len(l_dists) > 0:		
         		ind = np.argmin(l_dists)
         		ind2 = self.plants[ind]
-        		self.plants.remove(ind)
+        		self.plants.remove(ind2)
         		print(ind)
         		print(self.plants,"plant{}".format(ind2), "\n\n")
         		self.delete_model("plant{}".format(ind2))
