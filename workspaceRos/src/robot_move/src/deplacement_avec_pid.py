@@ -169,12 +169,14 @@ class data_getting():
         
         	if len(l_dists) > 0:		
         		ind = np.argmin(l_dists)
-        		ind2 = self.plants.pop(ind)
+        		ind2 = self.plants[ind]
+        		self.plants.remove(ind)
+        		print(ind)
         		print(self.plants,"plant{}".format(ind2), "\n\n")
-        		self.delete_model("plant{}".format(ind))
+        		self.delete_model("plant{}".format(ind2))
         
         
-        		self.delete_model(laser)
+#        		self.delete_model(laser)
         		
         		return ind
 
@@ -240,12 +242,12 @@ class data_getting():
                      
                      if(abs(x0 - b) <= 10  and  abs(y0 - b) <= 10 ):                                        
                          self.arreter = 0
-                         print("valide. attends 20s")
-                         time.sleep(3)
+                         print("valide position. attends 10s")
+                         
                      #self.eradication()
                          ind = self.laser_cone()
-                         self.plants.pop(ind)
-
+                         
+                         time.sleep(10)
 
         elif (self.img1 is not None) and (self.consigne is not None) and self.arreter == 0 :
             print("ETAT = deplacement vers plante")
@@ -259,18 +261,27 @@ class data_getting():
                 self.angle, self.hauteur = getAngle(self.img1,self.cx,self.cy)
                 # Regler angle
                 
-                if self.angle >= ANGLE_MAX or self.angle <= ANGLE_MIN :                  
-                    while self.angle >= ANGLE_MAX or self.angle <= ANGLE_MIN :
-                        print("je suis dans le while je regle l'angle")
-                        self.consigne.linear.x = 0
-                        a,b,_ = detect(self.img1)
-                        self.cx,self.cy = a,b
-                        self.angle, self.hauteur = getAngle(self.img1,self.cx,self.cy)
-#                        print("La consigne est de ",-self.consigne.angular.z)
-                        print("erreur", self.angle)
-                        self.consigne.angular.z = -self.pidangle(self.angle)
-                        self.pub.publish(self.consigne)
-                        
+#                if self.angle >= ANGLE_MAX or self.angle <= ANGLE_MIN :                  
+#                    while self.angle >= ANGLE_MAX or self.angle <= ANGLE_MIN :
+#                        print("je suis dans le while je regle l'angle")
+#                        self.consigne.linear.x = 0
+#                        a,b,_ = detect(self.img1)
+#                        self.cx,self.cy = a,b
+#                        self.angle, self.hauteur = getAngle(self.img1,self.cx,self.cy)
+##                        print("La consigne est de ",-self.consigne.angular.z)
+#                        print("erreur", self.angle)
+#                        self.consigne.angular.z = -self.pidangle(self.angle)
+#                        self.pub.publish(self.consigne
+                if (self.angle >= ANGLE_MAX and self.arreter == 0) :
+                    self.consigne.linear.x = 0
+                    self.consigne.angular.z = 0.01
+                    self.pub.publish(self.consigne)
+                    print("tourner g")
+                elif (self.angle <= ANGLE_MIN and self.arreter == 0):
+                    self.consigne.linear.x = 0
+                    self.consigne.angular.z = -0.01
+                    self.pub.publish(self.consigne)
+                    print("tourner d")  
                 else :
                     print("HAUTEUR =" , self.hauteur)
                     self.consigne.angular.z = 0
