@@ -185,75 +185,90 @@ class data_getting():
     def control(self):
         """
         
-        Detecte la plante  --> il faudra ajouter si rien est detecté, bouger aléatoirement  
-        La place en son centre
+        Detecte la plante  
+        Si rien est detecté, bouger aléatoirement  
+        IL place l'herbe en son centre, par rapport à la caméra du chassis
         S'avance vers elle 
-        self.L_arm = 0
-        Quand il est bien placé apelle la fonction pour peindre  
+        Il déplace le bras pour centrer l'herbe par rapport à la caméra du bras.
+        Quand il est bien placé apelle la fonction pour suprimmer l'herbe  
         
         """
+        
+        #Asservissement du bras si le robot est bien placé devant l'herbe
+        #si on est à l'arret, on veut placer le bras
         if self.arreter == 1:
-            print("ETAT = arret")
-
+            print("ETAT = Deplacement bras")
+            
+            #vérifie si on fait l'acquisition de l'image de la caméra du bras
+            #si on a bien une image
             if (self.img2 is not None) and (self.consigne is not None) :
-                 a,b,area = detect(self.img2)
-                 #print("image bras area  = ", area)
-    #                             while (area == False):
-    #                                 self.consigne.linear.x = 0
-    #                                 self.consigne.angular.z = 0.02
-    #                                 self.pub.publish(self.consigne)
-    #                                 a,b,area = dself.L_arm = 0etect(self.img2)
-    #                                 print("tourner g")
-     
+                 a,b = detect(self.img2) #centre du vert
+                 #si on a bien du vert dans l'image
                  if a!=False:
                      [l,L,_] = self.img2.shape
                      self.cx,self.cy = a,b
-                     #initial arm position
+                     
+                     #position initielle du bras
                      x0 = np.round(l/2)
                      y0 = np.round(L/2)
                      
-                     
-                     #desired position
-                     
+ 
                      if(self.arm_init == True):
+                         #xd,yd -position désirée
                          xd = self.cx
                          yd = self.cy
     
-                         #calculate next theta value
-                         thetad = setTheta(xd,yd,x0,y0, self.C_arm)
+                         #calcul du theta désiré
+                         thetad = setTheta(xd,x0, self.C_arm)
+                         #publie la commande d'asservissement de l'angle
                          self.publisher_angle.publish(thetad)    
-                         #calculate next L value
-                         L2_fin,x0_laser,y0_laser = setL(self.C_arm,thetad,x0,y0,xd,yd)
+                         #calcul de la longueur désiré du bras
+                         L2_fin = setL(self.C_arm,thetad,x0,y0,xd,yd)
+                         #publie la commande d'asservissement de longueur
                          self.publisher_L.publish(self.C_arm + L2_fin) 
+                         #met à jour C_arm
                          self.C_arm = self.C_arm + L2_fin
+                         #pour ne plus rentrer dans la boucle 
                          self.arm_init = False
                          
-                     a,b,area = detect(self.img2)
+                     a,b = detect(self.img2) #centre  du vert
+                     #récalcule le centre de l'herbe sur l'image
+                     #vérifie si l'herbe est bien centrée
+                     #sinon,règle la longueur du bras.
+                     
+                     #si bras trop long
                      if(b > np.round(L/2) and self.C_arm > L20_min):
-                         a,b,area = detect(self.img2)
+                         a,b = detect(self.img2)
                          self.C_arm = self.C_arm - 0.001
                          self.publisher_L.publish(self.C_arm)
-                             
+                     
+                        
+                     #si bras trop court   
                      elif(b < np.round(L/2) and self.C_arm < L20_max):
-                         a,b,area = detect(self.img2)
+                         a,b = detect(self.img2)
                          self.C_arm = self.C_arm + 0.001
                          self.publisher_L.publish(self.C_arm)        
                              
                      
-                     if(abs(x0 - b) <= 10  and  abs(y0 - b) <= 10 ):                                        
+                     #vérifie si après avoir réglé la longueur du bras
+                     #l'herbe est bien centrée, dans une certaine plage,
+                     #de 10 pixels.Dans le cas positif, valide la position 
+                     #et appelle la fonction pour suprimmer l'herbe.
+                     if(abs(x0 - b) <= 10  and  abs(y0 - b) <= 10 ):      
+                         #on valide la position du bras 
                          self.arreter = 0
-                         print("valide position. attends 10s")
-                         
-                     #self.eradication()
+                         #on appelle laser_cone afin de suprimmer
+                         #l'herbe.
                          ind = self.laser_cone()
-                         
+                         #la pause de 10s assure que la plante sera 
+                         #supprimé avant de chercher une autre herbe.
                          time.sleep(10)
 
         elif (self.img1 is not None) and (self.consigne is not None) and self.arreter == 0 :
             print("ETAT = deplacement vers plante")
             self.publisher_angle.publish(0)
             self.publisher_L.publish(0)
-            a,b,_ = detect(self.img1)
+            a,b = detect(self.img1)
             print("image")
             if a!=False:
 
