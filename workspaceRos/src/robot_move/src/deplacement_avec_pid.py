@@ -25,7 +25,7 @@ import numpy as np
 import cv2
 from simple_pid import PID
 import tf
-from gazebo_msgs.srv import DeleteModel, SpawnModel, GetModelState
+from gazebo_msgs.srv import DeleteModel, SpawnModel, GetModelState, SpawnModelRequest 
 import time
 import tf2_ros
 import tf2_geometry_msgs
@@ -86,18 +86,19 @@ class data_getting():
         print("Waiting for gazebo services...")
         rospy.wait_for_service("gazebo/delete_model")
         print("service1")
-        rospy.wait_for_service("gazebo/spawn_sdf_model")
+        rospy.wait_for_service("gazebo/spawn_urdf_model")
         print("seervice2")
         rospy.wait_for_service("gazebo/get_model_state")
         print("Got it.")
+	
         self.delete_model = rospy.ServiceProxy("gazebo/delete_model", DeleteModel)
-        self.spawn_model = rospy.ServiceProxy("gazebo/spawn_sdf_model", SpawnModel)
+        self.spawn_model = rospy.ServiceProxy("gazebo/spawn_urdf_model", SpawnModel)
         self.get_model_state = rospy.ServiceProxy("gazebo/get_model_state", GetModelState)
         self.nb_plants = 10
         self.plants = [i for i in range(self.nb_plants)]
         dirPath = os.path.dirname(__file__)
-        with open(os.path.join(dirPath, "laser.sdf"), "rw") as f:
-            self.laser_sdf = f.readlines()
+        with open(os.path.join(dirPath, "laser.urdf"), "r") as f:
+            self.laser_urdf = f.read()
 
 
     ## Callback pour les suscribers    
@@ -135,25 +136,32 @@ class data_getting():
         		
         	while transf == 0:
         		try: #listen to tf
-        			transforme = self.buf.lookup_transform('map', 'cameraBras_link', rospy.Time(0))
+        			transforme = self.buf.lookup_transform('odom', 'cameraBras_link', rospy.Time(0))
         			xc = transforme.transform.translation.x
         			yc = transforme.transform.translation.y
-        			zc = transforme.transform.translation.z
+        			zc = 0.08 
         			transf = 1
         
         		except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
         		
         			#print("err.")
         			continue
-        		
-        		
-        	#getting laser position et "printing" laser on gazebo
+                
+        #getting laser position et "printing" laser on gazebo
         	laser = "laser"
-        		
-        	print(xc, yc, zc)
-        	#laser_pose = Pose(Point(x=xc, y=yc, z=zc), orient)
-        	#self.spawn_model(laser, self.laser_sdf, "", laser_pose, "world")
-        
+        	self.delete_model(laser)
+	
+        	
+        	laser_pose = Pose(Point(x=xc, y=yc, z=zc), orient)
+        	request = SpawnModelRequest()
+        	request.model_name = laser
+        	request.model_xml = self.laser_urdf
+        	print(request.model_xml)
+        	request.initial_pose = laser_pose
+		    
+        	response = self.spawn_model(request)
+        	if not response.success:
+        			rospy.logwarn("Unable to spawn sdf: {}".format(response.status_message))
         	#deleting plants
         	l_dists = []
         	for i in self.plants:
@@ -176,7 +184,7 @@ class data_getting():
         		self.delete_model("plant{}".format(ind2))
         
         
-#        		self.delete_model(laser)
+        		self.delete_model(laser)
         		
         		return ind
 
@@ -297,7 +305,6 @@ class data_getting():
                         self.consigne.linear.x = 0.1
                         self.pub.publish(self.consigne)
                     else:
-                        self.eradication()
                         print("arrete toi!!!!")
                         self.arreter = 1
                         self.arm_init = True
