@@ -12,7 +12,8 @@
   <xacro:property name="length_4" value="0.1" /> <!-- laser arm -->
 
   <xacro:property name="arm_position" value="0.17" /> <!-- first arm -->
-  <xacro:property name="radius" value="0.02" /> <!-- Link 3 -->
+  <xacro:property name="radius" value="0.02" /> 
+  <xacro:property name="radius_arm_3" value="0.018" /> 
   <xacro:property name="camera_link" value="0.05" /> <!-- Size of square 'camera' box -->
   <xacro:property name="axel_offset" value="0.05" /> <!-- Space btw top of beam and the each joint -->
   
@@ -99,7 +100,7 @@
     <visual>
       <origin xyz="0 0 ${length_3 / 2}" rpy="0 0 0"/>
       <geometry>
-        <cylinder length="${length_3}" radius="${radius}"/>
+        <cylinder length="${length_3}" radius="${radius_arm_3}"/>
       </geometry>
     </visual>
 

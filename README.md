@@ -15,8 +15,8 @@ Pour pouvoir lancer la modélisation il faut :
 	
 - Rospy : sudo apt-get install python-rospy
 - Topic_tools : sudo apt-get install topic_tools
-- OpencvPython : pip3 install opencv-python
-- Simple_pid : pip3 install simple-pid
+- OpencvPython : pip install opencv-python
+- Simple_pid : pip install simple-pid
 - Joint state Controller : sudo apt install ros-melodic-hardware-interface ros-melodic-effort-controllers ros-melodic-joint-state-controller
 
 ## Initialisation du workspace
@@ -36,17 +36,22 @@ catkin_make
 Dans le même terminal : 
 
 ```
-roslaunch robot_global_result global_result.launch
+roslaunch robot_global_result global_result.launch gui:=true
+```
+ou 
+```
+roslaunch robot_global_result global_result.launch gui:=false
+
 ```
 
 ## Auteurs
 
 Antony ARSLANYAN		https://github.com/arslanan
 <br/>Juliette BRUGIER		https://github.com/brugieju
-<br/>Maria Luiza COSTA VIANNA
+<br/>Maria Luiza COSTA VIANNA   https://github.com/marialuizacvianna
 <br/>Sarah DELMAS
 <br/>Olivier LAURENDIN
-<br/>Louis VALERY
+<br/>Louis VALERY               https://github.com/LouisValery
 
 
 
