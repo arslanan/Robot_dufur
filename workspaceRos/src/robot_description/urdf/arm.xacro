@@ -7,7 +7,7 @@
   <xacro:property name="PI" value="3.1415926535897931"/>
   <xacro:property name="mass_first_part" value="0.01" /> <!-- arbitrary value for mass -->
   <xacro:property name="length_1" value="0.1" /> <!-- first arm -->
-  <xacro:property name="length_2" value="0.15" /> <!-- second arm -->
+  <xacro:property name="length_2" value="0.20" /> <!-- second arm -->
   <xacro:property name="length_3" value="0.25" /> <!-- third arm -->
   <xacro:property name="length_4" value="0.1" /> <!-- laser arm -->
 
@@ -56,7 +56,7 @@
   <joint name="joint_12" type="revolute">
     <parent link="arm_1_link"/>
     <child link="arm_2_link"/>
-    <origin xyz="0 0 ${length_1/2}" rpy="0 1.5707 0"/>
+    <origin xyz="0 0 ${length_1/2}" rpy="0 1.5707 3.1415"/>
     <axis xyz="1 0 0"/>
     <limit effort="5.0" lower="-3" upper="3.2" velocity="1"/>
 
