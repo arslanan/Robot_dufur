@@ -200,66 +200,71 @@ class data_getting():
         Quand il est bien placé apelle la fonction pour peindre  
         
         """
+        #si on est à l'arret, on veut placer le bras
         if self.arreter == 1:
             print("ETAT = arret")
 
+            #si on a bien une image
             if (self.img2 is not None) and (self.consigne is not None) :
                  a,b,area = detect(self.img2)
-                 #print("image bras area  = ", area)
-    #                             while (area == False):
-    #                                 self.consigne.linear.x = 0
-    #                                 self.consigne.angular.z = 0.02
-    #                                 self.pub.publish(self.consigne)
-    #                                 a,b,area = dself.L_arm = 0etect(self.img2)
-    #                                 print("tourner g")
-     
+
+                 #si on a bien du vert dans l'image
                  if a!=False:
+                     print("plant found")
                      [l,L,_] = self.img2.shape
                      self.cx,self.cy = a,b
+                     
                      #initial arm position
                      x0 = np.round(l/2)
                      y0 = np.round(L/2)
                      
-                     
-                     #desired position
-                     
+                     #calcule à la première iteration: desired position
                      if(self.arm_init == True):
                          xd = self.cx
                          yd = self.cy
     
                          #calculate next theta value
                          thetad = setTheta(xd,yd,x0,y0, self.C_arm)
-                         self.publisher_angle.publish(thetad)    
+                         thetad += np.pi
+                         print(thetad)
+                         self.publisher_angle.publish(thetad)  
+                          
                          #calculate next L value
                          L2_fin,x0_laser,y0_laser = setL(self.C_arm,thetad,x0,y0,xd,yd)
                          self.publisher_L.publish(self.C_arm + L2_fin) 
                          self.C_arm = self.C_arm + L2_fin
-                         self.arm_init = False
+                         self.arm_init = False #pour ne plus rentrer dans la boucle
                          
-                     a,b,area = detect(self.img2)
+                     a,b,area = detect(self.img2)#centre et zone du vert
+                     #si bras trop long
                      if(b > np.round(L/2) and self.C_arm > L20_min):
                          a,b,area = detect(self.img2)
                          self.C_arm = self.C_arm - 0.001
                          self.publisher_L.publish(self.C_arm)
-                             
+                         
+                     #si bras trop court        
                      elif(b < np.round(L/2) and self.C_arm < L20_max):
                          a,b,area = detect(self.img2)
                          self.C_arm = self.C_arm + 0.001
-                         self.publisher_L.publish(self.C_arm)        
-                             
-                     
+                         self.publisher_L.publish(self.C_arm)  
+                         
+                     #si on est bien place
                      if(abs(x0 - b) <= 10  and  abs(y0 - b) <= 10 ):                                        
                          self.arreter = 0
                          print("valide position. attends 10s")
                          
                      #self.eradication()
                          ind = self.laser_cone()
-                         
                          time.sleep(10)
-
+                 else:
+                    self.C_arm = -0.1
+                    self.publisher_L.publish(self.C_arm)
+                    self.publisher_angle.publish(np.pi)
+                    print("placer le bras correctement svp")
+                    
         elif (self.img1 is not None) and (self.consigne is not None) and self.arreter == 0 :
             print("ETAT = deplacement vers plante")
-            self.publisher_angle.publish(0)
+            self.publisher_angle.publish(np.pi)
             self.publisher_L.publish(0)
             a,b,_ = detect(self.img1)
             print("image")
@@ -328,13 +333,19 @@ class data_getting():
 
 		
 def main():
-	rospy.init_node('deplacement_avec_pid', anonymous=False)
-	data = data_getting()
-	rate = rospy.Rate(4)
-	
-	while not rospy.is_shutdown() :
-		data.control()
-		rate.sleep()	
+    rospy.init_node('deplacement_avec_pid', anonymous=False)
+    data = data_getting()
+    rate = rospy.Rate(4)
+ 
+    #position initial du bras pour respecter les contraintes de volum
+    data.publisher_L.publish(-0.1)
+    data.publisher_angle.publish(0)
+    print("command sent")
+    time.sleep(1)
+    
+    while not rospy.is_shutdown() :
+        data.control()
+        rate.sleep()	
 		
 	
 	
