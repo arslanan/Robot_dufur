@@ -15,8 +15,8 @@ Pour pouvoir lancer la modélisation il faut :
 	
 - Rospy : sudo apt-get install python-rospy
 - Topic_tools : sudo apt-get install topic_tools
-- OpencvPython : pip3 install opencv-python
-- Simple_pid : pip3 install simple-pid
+- OpencvPython : pip install opencv-python
+- Simple_pid : pip install simple-pid
 - Joint state Controller : sudo apt install ros-melodic-hardware-interface ros-melodic-effort-controllers ros-melodic-joint-state-controller
 
 ## Initialisation du workspace
