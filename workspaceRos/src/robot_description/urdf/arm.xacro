@@ -7,12 +7,13 @@
   <xacro:property name="PI" value="3.1415926535897931"/>
   <xacro:property name="mass_first_part" value="0.01" /> <!-- arbitrary value for mass -->
   <xacro:property name="length_1" value="0.1" /> <!-- first arm -->
-  <xacro:property name="length_2" value="0.15" /> <!-- second arm -->
+  <xacro:property name="length_2" value="0.20" /> <!-- second arm -->
   <xacro:property name="length_3" value="0.25" /> <!-- third arm -->
   <xacro:property name="length_4" value="0.1" /> <!-- laser arm -->
 
   <xacro:property name="arm_position" value="0.17" /> <!-- first arm -->
-  <xacro:property name="radius" value="0.02" /> <!-- Link 3 -->
+  <xacro:property name="radius" value="0.02" /> 
+  <xacro:property name="radius_arm_3" value="0.018" /> 
   <xacro:property name="camera_link" value="0.05" /> <!-- Size of square 'camera' box -->
   <xacro:property name="axel_offset" value="0.05" /> <!-- Space btw top of beam and the each joint -->
   
@@ -56,7 +57,7 @@
   <joint name="joint_12" type="revolute">
     <parent link="arm_1_link"/>
     <child link="arm_2_link"/>
-    <origin xyz="0 0 ${length_1/2}" rpy="0 1.5707 0"/>
+    <origin xyz="0 0 ${length_1/2}" rpy="0 1.5707 3.1415"/>
     <axis xyz="1 0 0"/>
     <limit effort="5.0" lower="-3" upper="3.2" velocity="1"/>
 
@@ -99,7 +100,7 @@
     <visual>
       <origin xyz="0 0 ${length_3 / 2}" rpy="0 0 0"/>
       <geometry>
-        <cylinder length="${length_3}" radius="${radius}"/>
+        <cylinder length="${length_3}" radius="${radius_arm_3}"/>
       </geometry>
     </visual>
 

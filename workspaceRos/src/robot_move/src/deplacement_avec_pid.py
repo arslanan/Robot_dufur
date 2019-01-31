@@ -25,7 +25,7 @@ import numpy as np
 import cv2
 from simple_pid import PID
 import tf
-from gazebo_msgs.srv import DeleteModel, SpawnModel, GetModelState
+from gazebo_msgs.srv import DeleteModel, SpawnModel, GetModelState, SpawnModelRequest 
 import time
 import tf2_ros
 import tf2_geometry_msgs
@@ -86,18 +86,19 @@ class data_getting():
         print("Waiting for gazebo services...")
         rospy.wait_for_service("gazebo/delete_model")
         print("service1")
-        rospy.wait_for_service("gazebo/spawn_sdf_model")
+        rospy.wait_for_service("gazebo/spawn_urdf_model")
         print("seervice2")
         rospy.wait_for_service("gazebo/get_model_state")
         print("Got it.")
+	
         self.delete_model = rospy.ServiceProxy("gazebo/delete_model", DeleteModel)
-        self.spawn_model = rospy.ServiceProxy("gazebo/spawn_sdf_model", SpawnModel)
+        self.spawn_model = rospy.ServiceProxy("gazebo/spawn_urdf_model", SpawnModel)
         self.get_model_state = rospy.ServiceProxy("gazebo/get_model_state", GetModelState)
         self.nb_plants = 10
         self.plants = [i for i in range(self.nb_plants)]
         dirPath = os.path.dirname(__file__)
-        with open(os.path.join(dirPath, "laser.sdf"), "rw") as f:
-            self.laser_sdf = f.readlines()
+        with open(os.path.join(dirPath, "laser.urdf"), "r") as f:
+            self.laser_urdf = f.read()
 
 
     ## Callback pour les suscribers    
@@ -135,25 +136,32 @@ class data_getting():
         		
         	while transf == 0:
         		try: #listen to tf
-        			transforme = self.buf.lookup_transform('map', 'cameraBras_link', rospy.Time(0))
+        			transforme = self.buf.lookup_transform('odom', 'cameraBras_link', rospy.Time(0))
         			xc = transforme.transform.translation.x
         			yc = transforme.transform.translation.y
-        			zc = transforme.transform.translation.z
+        			zc = 0.08 
         			transf = 1
         
         		except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
         		
         			#print("err.")
         			continue
-        		
-        		
-        	#getting laser position et "printing" laser on gazebo
+                
+        #getting laser position et "printing" laser on gazebo
         	laser = "laser"
-        		
-        	print(xc, yc, zc)
-        	#laser_pose = Pose(Point(x=xc, y=yc, z=zc), orient)
-        	#self.spawn_model(laser, self.laser_sdf, "", laser_pose, "world")
-        
+        	self.delete_model(laser)
+	
+        	
+        	laser_pose = Pose(Point(x=xc, y=yc, z=zc), orient)
+        	request = SpawnModelRequest()
+        	request.model_name = laser
+        	request.model_xml = self.laser_urdf
+        	print(request.model_xml)
+        	request.initial_pose = laser_pose
+		    
+        	response = self.spawn_model(request)
+        	if not response.success:
+        			rospy.logwarn("Unable to spawn sdf: {}".format(response.status_message))
         	#deleting plants
         	l_dists = []
         	for i in self.plants:
@@ -176,7 +184,7 @@ class data_getting():
         		self.delete_model("plant{}".format(ind2))
         
         
-#        		self.delete_model(laser)
+        		self.delete_model(laser)
         		
         		return ind
 
@@ -185,75 +193,112 @@ class data_getting():
     def control(self):
         """
         
-        Detecte la plante  --> il faudra ajouter si rien est detecté, bouger aléatoirement  
-        La place en son centre
+        Detecte la plante  
+        Si rien est detecté, bouger aléatoirement  
+        IL place l'herbe en son centre, par rapport à la caméra du chassis
         S'avance vers elle 
-        self.L_arm = 0
-        Quand il est bien placé apelle la fonction pour peindre  
+        Il déplace le bras pour centrer l'herbe par rapport à la caméra du bras.
+        Quand il est bien placé apelle la fonction pour suprimmer l'herbe  
         
         """
-        if self.arreter == 1:
-            print("ETAT = arret")
 
+        
+        #Asservissement du bras si le robot est bien placé devant l'herbe
+        #si on est à l'arret, on veut placer le bras
+        if self.arreter == 1:
+            print("ETAT = Deplacement bras")
+            
+            #vérifie si on fait l'acquisition de l'image de la caméra du bras
+            #si on a bien une image
             if (self.img2 is not None) and (self.consigne is not None) :
-                 a,b,area = detect(self.img2)
-                 #print("image bras area  = ", area)
-    #                             while (area == False):
-    #                                 self.consigne.linear.x = 0
-    #                                 self.consigne.angular.z = 0.02
-    #                                 self.pub.publish(self.consigne)
-    #                                 a,b,area = dself.L_arm = 0etect(self.img2)
-    #                                 print("tourner g")
-     
+                 a,b = detect(self.img2) #centre du vert
+
+                 #si on a bien du vert dans l'image
                  if a!=False:
+                     print("plant found")
                      [l,L,_] = self.img2.shape
                      self.cx,self.cy = a,b
-                     #initial arm position
+                     
+
+                     #position initiale du bras
                      x0 = np.round(l/2)
                      y0 = np.round(L/2)
-                     
-                     
-                     #desired position
-                     
+                     #calcule à la première iteration: desired position
+ 
+
                      if(self.arm_init == True):
+                         #xd,yd -position désirée
                          xd = self.cx
                          yd = self.cy
     
-                         #calculate next theta value
-                         thetad = setTheta(xd,yd,x0,y0, self.C_arm)
+
+                         #calcul du theta désiré
+                         thetad = setTheta(xd,x0, self.C_arm)
+                         thetad += np.pi
+                         print(thetad)
+                         #publie la commande d'asservissement de l'angle
                          self.publisher_angle.publish(thetad)    
-                         #calculate next L value
-                         L2_fin,x0_laser,y0_laser = setL(self.C_arm,thetad,x0,y0,xd,yd)
+                         #calcul de la longueur désiré du bras
+                         L2_fin = setL(self.C_arm,thetad,x0,y0,xd,yd)
+                         #publie la commande d'asservissement de longueur
+
                          self.publisher_L.publish(self.C_arm + L2_fin) 
+                         #met à jour C_arm
                          self.C_arm = self.C_arm + L2_fin
+
+                         #pour ne plus rentrer dans la boucle 
                          self.arm_init = False
                          
-                     a,b,area = detect(self.img2)
+                     a,b = detect(self.img2) #centre  du vert
+                     #récalcule le centre de l'herbe sur l'image
+                     #vérifie si l'herbe est bien centrée
+                     #sinon,règle la longueur du bras.
+                     
+
+                     #si bras trop long
                      if(b > np.round(L/2) and self.C_arm > L20_min):
-                         a,b,area = detect(self.img2)
+                         a,b = detect(self.img2)
                          self.C_arm = self.C_arm - 0.001
                          self.publisher_L.publish(self.C_arm)
-                             
+
+                     
+                        
+                     #si bras trop court   
+
                      elif(b < np.round(L/2) and self.C_arm < L20_max):
-                         a,b,area = detect(self.img2)
+                         a,b = detect(self.img2)
                          self.C_arm = self.C_arm + 0.001
+
                          self.publisher_L.publish(self.C_arm)        
                              
                      
-                     if(abs(x0 - b) <= 10  and  abs(y0 - b) <= 10 ):                                        
-                         self.arreter = 0
-                         print("valide position. attends 10s")
-                         
-                     #self.eradication()
-                         ind = self.laser_cone()
-                         
-                         time.sleep(10)
+                     #vérifie si après avoir réglé la longueur du bras
+                     #l'herbe est bien centrée, dans une certaine plage,
+                     #de 10 pixels.Dans le cas positif, valide la position 
+                     #et appelle la fonction pour suprimmer l'herbe.
+                     if(abs(x0 - b) <= 10  and  abs(y0 - b) <= 10 ):      
+                         #on valide la position du bras 
 
+                         self.arreter = 0
+                         #on appelle laser_cone afin de suprimmer
+                         #l'herbe.
+                         ind = self.laser_cone()
+
+                         #la pause de 10s assure que la plante sera 
+                         #supprimé avant de chercher une autre herbe.
+
+                         time.sleep(10)
+                 else:
+                    self.C_arm = -0.1
+                    self.publisher_L.publish(self.C_arm)
+                    self.publisher_angle.publish(np.pi)
+                    print("placer le bras correctement svp")
+                    
         elif (self.img1 is not None) and (self.consigne is not None) and self.arreter == 0 :
             print("ETAT = deplacement vers plante")
-            self.publisher_angle.publish(0)
+            self.publisher_angle.publish(np.pi)
             self.publisher_L.publish(0)
-            a,b,_ = detect(self.img1)
+            a,b = detect(self.img1)
             print("image")
             if a!=False:
 
@@ -297,7 +342,6 @@ class data_getting():
                         self.consigne.linear.x = 0.1
                         self.pub.publish(self.consigne)
                     else:
-                        self.eradication()
                         print("arrete toi!!!!")
                         self.arreter = 1
                         self.arm_init = True
@@ -321,13 +365,19 @@ class data_getting():
 
 		
 def main():
-	rospy.init_node('deplacement_avec_pid', anonymous=False)
-	data = data_getting()
-	rate = rospy.Rate(4)
-	
-	while not rospy.is_shutdown() :
-		data.control()
-		rate.sleep()	
+    rospy.init_node('deplacement_avec_pid', anonymous=False)
+    data = data_getting()
+    rate = rospy.Rate(4)
+ 
+    #position initial du bras pour respecter les contraintes de volum
+    data.publisher_L.publish(-0.1)
+    data.publisher_angle.publish(0)
+    print("command sent")
+    time.sleep(1)
+    
+    while not rospy.is_shutdown() :
+        data.control()
+        rate.sleep()	
 		
 	
 	
