@@ -1,4 +1,5 @@
 # Suppression de fichier utiles à al compilation propres à chaque ordinateurs
 workspaceRos/build/
 workspaceRos/devel/
+src/robot_move/src/__pycache__/
 *.pyc
